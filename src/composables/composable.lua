@@ -5,7 +5,6 @@ function Composable.init(config)
   Composable.input = config.input
   Composable.camera = config.camera
   Composable.world = config.world
-  -- Composable.worldCollider = config.worldCollider
   Composable.eventEmitter = config.eventEmitter
 end
 

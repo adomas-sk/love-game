@@ -1,5 +1,4 @@
 local camera = require("libs.camera")
--- local HC = require("libs.HC")
 
 local Composable = require("src.composables.composable")
 local InputManagement = require("src.composables.input-management")
@@ -14,12 +13,10 @@ function love.load()
   EventEmitter = EE.new()
   World = love.physics.newWorld(0, 0, true)
   Camera = camera.new(0,0)
-  -- WorldCollider = HC.new()
   Composable.init({
     world = World,
     input = Input,
     camera = Camera,
-    -- worldCollider = WorldCollider,
     eventEmitter = EventEmitter,
   })
 

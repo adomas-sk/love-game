@@ -1,0 +1,32 @@
+name: Testing[master]
+on:
+  push:
+    branches: [ master ]
+jobs:
+  build-game_of_life:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: nhartland/love-build@master
+      id: love-build
+      with:
+        app_name: 'mygame'
+        love_version: '11.3'
+        source_dir: '/'
+    # Upload the resulting artifacts
+    - uses: actions/upload-artifact@v1
+      with:
+        name: gol_macos-build
+        path: ${{ steps.love-build.outputs.macos-filename }}
+    - uses: actions/upload-artifact@v1
+      with:
+        name: gol_win32-build
+        path: ${{ steps.love-build.outputs.win32-filename }}
+    - uses: actions/upload-artifact@v1
+      with:
+        name: gol_win64-build
+        path: ${{ steps.love-build.outputs.win64-filename }}
+    - uses: actions/upload-artifact@v1
+      with:
+        name: gol_love-build
+        path: ${{ steps.love-build.outputs.love-filename }}
