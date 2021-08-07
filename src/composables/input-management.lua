@@ -50,7 +50,7 @@ function InputManagement:addEventHandler(event, handler)
   if self.events[event] then
     table.insert(self.events[event].pressed, 1, handler)
   else
-    error("InputManagement: tried to add event: $event , which doesn't exist")
+    error("InputManagement: tried to add event: " .. event .." , which doesn't exist")
   end
 end
 

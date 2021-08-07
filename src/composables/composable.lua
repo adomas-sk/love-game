@@ -4,15 +4,18 @@ Composable.__index = Composable
 function Composable.init(config)
   Composable.input = config.input
   Composable.camera = config.camera
-  Composable.worldCollider = config.worldCollider
+  Composable.world = config.world
+  -- Composable.worldCollider = config.worldCollider
   Composable.eventEmitter = config.eventEmitter
 end
 
-function Composable.new(id)
+function Composable.new(id, excludeFromEventEmitter)
   local composable = { id = id }
   setmetatable(composable, Composable)
 
-  composable.eventEmitter:addComposable(composable)
+  if excludeFromEventEmitter == nil then
+    composable.eventEmitter:addComposable(composable)
+  end
   composable.events = {
     draw = {},
     update = {},

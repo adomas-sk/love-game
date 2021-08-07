@@ -1,6 +1,5 @@
--- local gamera = require("libs.gamera")
 local camera = require("libs.camera")
-local HC = require("libs.HC")
+-- local HC = require("libs.HC")
 
 local Composable = require("src.composables.composable")
 local InputManagement = require("src.composables.input-management")
@@ -13,27 +12,16 @@ local addCollision = require("src.composables.adders.add-collision")
 function love.load()
   Input = InputManagement.new()
   EventEmitter = EE.new()
-  World = love.physics.newWorld(0, 200, true)
+  World = love.physics.newWorld(0, 0, true)
   Camera = camera.new(0,0)
-  WorldCollider = HC.new()
+  -- WorldCollider = HC.new()
   Composable.init({
+    world = World,
     input = Input,
     camera = Camera,
-    worldCollider = WorldCollider,
+    -- worldCollider = WorldCollider,
     eventEmitter = EventEmitter,
   })
-
-  Player = Composable.new("player")
-  addCollision(Player, {
-    x = 400,
-    y = 200,
-    radius = 50,
-    shape = "circle",
-  })
-  addSprite(Player, {
-    radius = 50
-  })
-  addPlayerControl(Player)
 
   local static = Composable.new("static")
   addCollision(static, {
@@ -41,34 +29,48 @@ function love.load()
     y = 400,
     w = 200,
     h = 50,
+    type = "static",
     shape = "rectangle",
   })
   addSprite(static, {
-    x = 400,
-    y = 400,
+    drawPosition = 3,
     w = 200,
     h = 50,
+    color = {0, 1, 0.5, 1,}
   })
 
-  -- static = {}
-  -- static.collider = WorldCollider:rectangle(400, 400, 200, 50)
+  -- local enemy = Composable.new("enemy")
+  -- addCollision(enemy, {
+    
+  -- })
+  
+  Player = Composable.new("player")
+  addCollision(Player, {
+    x = 400,
+    y = 200,
+    radius = 50,
+    shape = "circle",
+    type = "dynamic",
+    
+  })
+  addSprite(Player, {
+    drawPosition = 7,
+    radius = 50,
+    color = {1, 0, 0.5, 1,}
+  })
+  addPlayerControl(Player)
 end
 
 function love.update(dt)
   World:update(dt)
   EventEmitter:emit("update")
-  Camera:lookAt(Player.position:unpack())
+  Camera:lookAt(Player.body:getPosition())
 end
 
 function love.draw()
   Camera:attach()
-  EventEmitter:emit("draw")
+  EventEmitter:emitDraw()
   Camera:detach()
-  -- Camera:move(Player.position:unpack())
-  -- Camera:draw(function ()
-    -- local staticCX, staticCY = static.collider:center()
-    -- love.graphics.rectangle("line", staticCX - 100, staticCY - 25, 200, 50)
-  -- end)
 end
 
 function love.mousepressed(x, y, button)

@@ -6,7 +6,7 @@
     {
       "label": "love run",
       "type": "shell",
-      "command": "love .",
+      "command": "/usr/local/bin/love .",
       "problemMatcher": [],
       "group": {
         "kind": "build",

@@ -1,22 +1,12 @@
-local vector = require("../../../libs/vector")
-
 local function addCollision(c, colliderData)
+  c.body = love.physics.newBody(c.world, colliderData.x, colliderData.y, colliderData.type)
   if colliderData.shape == "circle" then
-    c.collider = c.worldCollider:circle(colliderData.x, colliderData.y, colliderData.radius)
+    c.collider = love.physics.newCircleShape(colliderData.radius)
   else
-    c.collider = c.worldCollider:rectangle(colliderData.x, colliderData.y, colliderData.w, colliderData.h)
+    c.collider = love.physics.newRectangleShape(colliderData.w, colliderData.h)
   end
+  c.fixture = love.physics.newFixture(c.body, c.collider)
   c.shape = colliderData.shape
-  c.position = vector(colliderData.x, colliderData.y)
-
-  local updateHandler = function()
-    c.collider:moveTo(c.position:unpack())
-    for shape, delta in pairs(c.worldCollider:collisions(c.collider)) do
-      c.eventEmitter:emitTo(c.id, "collide", { shape = shape, delta = delta })
-    end
-  end
-
-  c:addEventHandler("update", updateHandler)
 end
 
 return addCollision

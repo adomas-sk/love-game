@@ -4,17 +4,31 @@ EventEmitter.__index = EventEmitter
 function EventEmitter.new()
   local eventEmitter = {}
   setmetatable(eventEmitter, EventEmitter)
-  
+
   eventEmitter.composables = {}
+  eventEmitter.drawEvents = {}
+  table.insert(eventEmitter.drawEvents, {}) -- 1
+  table.insert(eventEmitter.drawEvents, {}) -- 2
+  table.insert(eventEmitter.drawEvents, {}) -- 3
+  table.insert(eventEmitter.drawEvents, {}) -- 4
+  table.insert(eventEmitter.drawEvents, {}) -- 5
+  table.insert(eventEmitter.drawEvents, {}) -- 6
+  table.insert(eventEmitter.drawEvents, {}) -- 7
+  table.insert(eventEmitter.drawEvents, {}) -- 8
+  table.insert(eventEmitter.drawEvents, {}) -- 9
 
   return eventEmitter
 end
 
 function EventEmitter:addComposable(c)
   if self.composables[c.id] then
-    error("EventEmitter: Composable already exists - $c.id")
+    error("EventEmitter: Composable already exists - " .. c.id)
   end
   self.composables[c.id] = c
+  print("added " .. c.id)
+  for _, v in pairs(self.composables) do
+    print(v.id)
+  end
 end
 
 function EventEmitter:emitTo(cId, key, payload)
@@ -31,6 +45,28 @@ function EventEmitter:emit(key, payload)
     for _, eventHandler in pairs(c.events[key]) do
       eventHandler(payload)
     end
+  end
+end
+
+function EventEmitter:addDrawHandler(handler, pos)
+  local position = 5
+  if pos then
+    position = pos
+  end
+  table.insert(self.drawEvents[position], 1, handler)
+end
+
+function EventEmitter:emitDraw()
+  for _,v in pairs(self.drawEvents) do
+    for _, drawHandler in pairs(v) do
+      drawHandler()
+    end
+  end
+end
+
+function EventEmitter:manualEmit(c, event, payload)
+  for _, eventHandler in pairs(c.events[event]) do
+    eventHandler(payload)
   end
 end
 

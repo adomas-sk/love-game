@@ -1,42 +1,49 @@
-local vector = require("../../../libs/vector")
+local vector = require("libs/vector")
+local Composable = require("src.composables.composable")
+local addSprite = require("src.composables.adders.add-sprite")
 
-local function addPlayerControl(c, controlData)
-  if c.position == nil then
-    error("Tried to add playerControl to composable that does not have position")
+local function addPlayerControl(c)
+  if c.body == nil then
+    error("Tried to add playerControl to composable that does not have body")
   end
 
   c.playerControl = {
-    lastPosition = c.position:clone()
+    walkToPointSprite = Composable.new("walkToPoint")
   }
+  local getWalkToPointSpritePosition = function()
+    if c.playerControl.destination then
+      return c.playerControl.destination:unpack()
+    end
+    return nil, nil
+  end
+  addSprite(c.playerControl.walkToPointSprite, {
+    getPosition = getWalkToPointSpritePosition,
+    shape = "circle",
+    radius = 5,
+    color = {1, 1, 0.5, 1}
+  })
 
-  local mouse1Handler = function (x, y)
+  local mouse1Handler = function(x, y)
     local cameraX, cameraY = c.camera:position()
     local windowW, windowH = love.graphics.getDimensions()
-    local destination = vector(x, y) + vector(cameraX - windowW / 2, cameraY - windowH / 2)
-    c.playerControl.currentVelocity = (destination - c.position):setmag(3)
+    local destination = vector(x + cameraX - windowW / 2, y + cameraY - windowH / 2)
     c.playerControl.destination = destination
   end
 
-  local updateHandler = function ()
-    if c.playerControl.currentVelocity ~= nil then
-      if c.playerControl.destination:dist(c.position) < 2 then
-        c.playerControl.currentVelocity = nil
+  local updateHandler = function()
+    if c.playerControl.destination ~= nil then
+      if c.playerControl.destination:dist(vector(c.body:getPosition())) < 1 then
+        c.playerControl.destination = nil
+        c.body:setLinearVelocity(0, 0)
       else
-        c.position = c.position + c.playerControl.currentVelocity
+        local velocity = (c.playerControl.destination - vector(c.body:getPosition())):setmag(100)
+        c.body:setLinearVelocity(velocity:unpack())
       end
     end
-    c.playerControl.lastPosition = c.position:clone()
-  end
-
-  local collisionHandler = function(collisionObject)
-    print(collisionObject.shape)
-    c.playerControl.currentVelocity = nil
-    c.position = c.playerControl.lastPosition
   end
 
   c.input:addEventHandler("mouse1", mouse1Handler)
   c:addEventHandler("update", updateHandler)
-  c:addEventHandler("collide", collisionHandler)
 end
 
 return addPlayerControl
