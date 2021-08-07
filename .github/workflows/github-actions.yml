@@ -12,7 +12,7 @@ jobs:
       with:
         app_name: 'mygame'
         love_version: '11.3'
-    # Upload the resulting artifacts
+    # Upload the resulting artifacts 
     - uses: actions/upload-artifact@v1
       with:
         name: gol_macos-build
