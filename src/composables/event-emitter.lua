@@ -11,11 +11,11 @@ function EventEmitter.new()
   table.insert(eventEmitter.drawEvents, {}) -- 2
   table.insert(eventEmitter.drawEvents, {}) -- 3
   table.insert(eventEmitter.drawEvents, {}) -- 4
-  table.insert(eventEmitter.drawEvents, {}) -- 5
-  table.insert(eventEmitter.drawEvents, {}) -- 6
+  table.insert(eventEmitter.drawEvents, {}) -- 5 Default
+  table.insert(eventEmitter.drawEvents, {}) -- 6 Player
   table.insert(eventEmitter.drawEvents, {}) -- 7
-  table.insert(eventEmitter.drawEvents, {}) -- 8
-  table.insert(eventEmitter.drawEvents, {}) -- 9
+  table.insert(eventEmitter.drawEvents, {}) -- 8 UI
+  table.insert(eventEmitter.drawEvents, {}) -- 9 UI
 
   return eventEmitter
 end

@@ -12,7 +12,8 @@ function InputManagement.new()
   setmetatable(inputManagement, InputManagement)
 
   local input = {
-    w = 0
+    w = 0,
+    i = 0,
   }
   local function pressedHandler(key)
     return function()
@@ -36,6 +37,7 @@ function InputManagement.new()
   end
   local events = {
     w = createHandlers("w"),
+    i = createHandlers("i"),
     [mouseNames[1]] = createHandlers(mouseNames[1]),
     [mouseNames[2]] = createHandlers(mouseNames[2]),
     [mouseNames[3]] = createHandlers(mouseNames[3]),

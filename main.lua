@@ -4,6 +4,8 @@ local Composable = require("src.composables.composable")
 local InputManagement = require("src.composables.input-management")
 local EE = require("src.composables.event-emitter")
 
+local renderHUD = require("src.composables.hud.render-hud")
+
 local addPlayerControl = require("src.composables.adders.add-player-control")
 local addSprite = require("src.composables.adders.add-sprite")
 local addCollision = require("src.composables.adders.add-collision")
@@ -36,11 +38,6 @@ function love.load()
     color = {0, 1, 0.5, 1,}
   })
 
-  -- local enemy = Composable.new("enemy")
-  -- addCollision(enemy, {
-    
-  -- })
-  
   Player = Composable.new("player")
   addCollision(Player, {
     x = 400,
@@ -56,6 +53,9 @@ function love.load()
     color = {1, 0, 0.5, 1,}
   })
   addPlayerControl(Player)
+
+  local hud = Composable.new("hud")
+  renderHUD(hud, {})
 end
 
 function love.update(dt)
