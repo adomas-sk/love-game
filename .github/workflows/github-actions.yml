@@ -3,7 +3,7 @@ on:
   push:
     branches: [ master ]
 jobs:
-  build-game_of_life:
+  build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -12,7 +12,6 @@ jobs:
       with:
         app_name: 'mygame'
         love_version: '11.3'
-        source_dir: '/'
     # Upload the resulting artifacts
     - uses: actions/upload-artifact@v1
       with:
