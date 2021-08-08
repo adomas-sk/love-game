@@ -45,7 +45,7 @@ local function addPlayerControl(c)
     end
   end
 
-  c.input:addEventHandler("mouse1", mouse1Handler)
+  c.input:addEventHandler(c.id, "mouse1", mouse1Handler)
   c:addEventHandler("update", updateHandler)
 end
 

@@ -1,10 +1,7 @@
-EventEmitter = {}
-EventEmitter.__index = EventEmitter
+local eventEmitter = {}
+eventEmitter.__index = eventEmitter
 
-function EventEmitter.new()
-  local eventEmitter = {}
-  setmetatable(eventEmitter, EventEmitter)
-
+function eventEmitter.new()
   eventEmitter.composables = {}
   eventEmitter.drawEvents = {}
   table.insert(eventEmitter.drawEvents, {}) -- 1
@@ -21,23 +18,31 @@ function EventEmitter.new()
   return eventEmitter
 end
 
-function EventEmitter:addComposable(c)
+function eventEmitter:addComposable(c)
   if self.composables[c.id] then
-    error("EventEmitter: Composable already exists - " .. c.id)
+    error("eventEmitter: Composable already exists - " .. c.id)
   end
   self.composables[c.id] = c
 end
 
-function EventEmitter:emitTo(cId, key, payload)
+function eventEmitter:removeComposable(cId)
+  if not self.composables[cId] then
+    error("eventEmitter: Trying to remove non existing composable - " .. cId)
+  end
+  self.composables[cId] = nil
+  self:removeDrawHandler(cId)
+end
+
+function eventEmitter:emitTo(cId, key, payload)
   if self.composables[cId] == nil then
-    error("EventEmitter: emitting event to non existing composable")
+    error("eventEmitter: emitting event to non existing composable - " .. cId .. ", key - " .. key)
   end
   for _, eventHandler in pairs(self.composables[cId].events[key]) do
     eventHandler(payload)
   end
 end
 
-function EventEmitter:emit(key, payload)
+function eventEmitter:emit(key, payload)
   for _, c in pairs(self.composables) do
     for _, eventHandler in pairs(c.events[key]) do
       eventHandler(payload)
@@ -45,38 +50,63 @@ function EventEmitter:emit(key, payload)
   end
 end
 
-function EventEmitter:addDrawHandler(handler, pos, hud)
+function eventEmitter:addDrawHandler(id, handler, pos, hud)
   local position = 5
   if pos then
     position = pos
   end
   if hud then
-    table.insert(self.hudDrawEvents[position], 1, handler)
+    table.insert(self.hudDrawEvents[position], 1, { id = id, handler = handler })
   else
-    table.insert(self.drawEvents[position], 1, handler)
+    table.insert(self.drawEvents[position], 1, { id = id, handler = handler })
   end
 end
 
-function EventEmitter:emitDraw(hud)
+function eventEmitter:removeDrawHandler(id)
+  for _,event in pairs(self.drawEvents) do
+    local handlersToRemove = {}
+    for index,handler in pairs(event) do
+      if handler.id == id then
+        table.insert(handlersToRemove, index)
+      end
+    end
+    for _,index in pairs(handlersToRemove) do
+      table.remove(event, index)
+    end
+  end
+  for _,event in pairs(self.hudDrawEvents) do
+    local handlersToRemove = {}
+    for index,handler in pairs(event) do
+      if handler.id == id then
+        table.insert(handlersToRemove, index)
+      end
+    end
+    for _,index in pairs(handlersToRemove) do
+      table.remove(event, index)
+    end
+  end
+end
+
+function eventEmitter:emitDraw(hud)
   if hud then
     for _,v in pairs(self.hudDrawEvents) do
       for _, drawHandler in pairs(v) do
-        drawHandler()
+        drawHandler.handler()
       end
     end
   else
     for _,v in pairs(self.drawEvents) do
       for _, drawHandler in pairs(v) do
-        drawHandler()
+        drawHandler.handler()
       end
     end
   end
 end
 
-function EventEmitter:manualEmit(c, event, payload)
+function eventEmitter:manualEmit(c, event, payload)
   for _, eventHandler in pairs(c.events[event]) do
     eventHandler(payload)
   end
 end
 
-return EventEmitter
+return eventEmitter

@@ -1,32 +1,37 @@
-Composable = {}
-Composable.__index = Composable
+local composable = {}
+composable.__index = composable
 
-function Composable.init(config)
-  Composable.input = config.input
-  Composable.camera = config.camera
-  Composable.world = config.world
-  Composable.eventEmitter = config.eventEmitter
+function composable.init(config)
+  composable.input = config.input
+  composable.camera = config.camera
+  composable.world = config.world
+  composable.eventEmitter = config.eventEmitter
 end
 
-function Composable.new(id, excludeFromEventEmitter)
-  local composable = { id = id }
-  setmetatable(composable, Composable)
+function composable.new(id, excludeFromEventEmitter)
+  local comp = { id = id }
+  setmetatable(comp, composable)
 
   if excludeFromEventEmitter == nil then
-    composable.eventEmitter:addComposable(composable)
+    comp.eventEmitter:addComposable(comp)
   end
-  composable.events = {
+  comp.events = {
     draw = {},
     update = {},
     collide = {},
-    
+    destroy = {},
   }
+  table.insert(comp.events.destroy, 1, function ()
+    comp.input:removeEventHandler(id)
+    comp.eventEmitter:removeComposable(id)
+    comp = nil
+  end)
 
-  return composable
+  return comp
 end
 
-function Composable:addEventHandler(eventName, handler)
+function composable:addEventHandler(eventName, handler)
   table.insert(self.events[eventName], 1, handler)
 end
 
-return Composable
+return composable

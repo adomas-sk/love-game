@@ -5,19 +5,21 @@ local function renderHUD(c, config)
   }
   c.inventory = {
     dragging = { color = nil, from = {} },
-    backpack = {
-      {{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}},
-      {{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}},
-      {{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}},
-      {{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}},
-      {{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}},
-      {{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}},
-    },
-    equipment = {
-      {},{},{},{},{},{},
-    }
+    backpack = {},
+    equipment = {}
   }
-  
+
+  local rows, cols, equipment = 6, 8, 6
+  for row=1,rows do
+    c.inventory.backpack[row] = {}
+    for col=1,cols do
+      c.inventory.backpack[row][col] = {}
+    end
+  end
+  for slot=1,equipment do
+    c.inventory.equipment[slot] = {}
+  end
+
   c.inventory.backpack[1][1].color = {r = 1, g = 1, b = 1, a = 1}
   c.inventory.backpack[2][2].color = {r = 0.4, g = 1, b = 1, a = 1}
   c.inventory.backpack[5][7].color = {r = 1, g = 1, b = 1, a = 1}
@@ -30,7 +32,6 @@ local function renderHUD(c, config)
   local invW, invH = 500, 275
   local invX, invY = windowW / 2 - invW / 2, windowH / 2 - invH / 2
   local slotW, slotH = 30, 30
-  local rows, cols, equipment = 6, 8, 6
 
   local drawHandler = function()
     -- Container
@@ -64,7 +65,7 @@ local function renderHUD(c, config)
           love.graphics.rectangle("fill", invX + 10 + (col - 1) * slotW * 1.5, invY + 10 + (row - 1) * slotH * 1.5, slotW, slotH)
         end
       end
-      
+
       for slot =1,equipment do
         if c.inventory.equipment[slot].color then
           local color = c.inventory.equipment[slot].color
@@ -74,15 +75,18 @@ local function renderHUD(c, config)
         end
         love.graphics.rectangle("fill", invX + 10 + 405, invY + 10 + (slot - 1) * slotH * 1.5, slotW, slotH)
       end
+
+      if c.inventory.dragging.color then
+        local color = c.inventory.dragging.color
+        love.graphics.setColor(color.r, color.g, color.b, color.a)
+        local mouseX,mouseY = love.mouse.getPosition()
+        love.graphics.rectangle("fill", mouseX, mouseY, slotW, slotH)
+      end
     end
   end
 
   local inventoryToggleHandler = function()
-    if c.show.inventory == true then
-      c.show.inventory = false
-    else
-      c.show.inventory = true
-    end
+    c.show.inventory = not c.show.inventory
   end
 
   local function mouseOnInventorySlot(x, y)
@@ -108,6 +112,9 @@ local function renderHUD(c, config)
   local mouse1PressedHandler = function(x, y)
     if c.show.inventory == false then
       return nil
+    end
+    if not (x >= invX and x <= invX + invW and y >= invY and y <= invY + invH) then
+      inventoryToggleHandler()
     end
     local row,col = mouseOnInventorySlot(x, y)
     if row and col and c.inventory.backpack[row][col].color then
@@ -174,10 +181,10 @@ local function renderHUD(c, config)
     c.inventory.dragging.color = nil
   end
 
-  c.eventEmitter:addDrawHandler(drawHandler, 1, true)
-  c.input:addEventHandler("i", inventoryToggleHandler)
-  c.input:addEventHandler("mouse1", mouse1PressedHandler)
-  c.input:addEventHandler("mouse1", mouse1ReleaseHandler, true)
+  c.eventEmitter:addDrawHandler("hud", drawHandler, 1, true)
+  c.input:addEventHandler(c.id, "i", inventoryToggleHandler)
+  c.input:addEventHandler(c.id, "mouse1", mouse1PressedHandler)
+  c.input:addEventHandler(c.id, "mouse1", mouse1ReleaseHandler, true)
 end
 
 return renderHUD

@@ -31,7 +31,7 @@ local function addSprite(c, spriteData)
     end
   end
 
-  c.eventEmitter:addDrawHandler(drawHandler, spriteData.drawPosition)
+  c.eventEmitter:addDrawHandler(c.id, drawHandler, spriteData.drawPosition)
 end
 
 return addSprite

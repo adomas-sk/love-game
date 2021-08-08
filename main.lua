@@ -9,12 +9,17 @@ local renderHUD = require("src.composables.hud.render-hud")
 local addPlayerControl = require("src.composables.adders.add-player-control")
 local addSprite = require("src.composables.adders.add-sprite")
 local addCollision = require("src.composables.adders.add-collision")
+local addActiveSkill = require("src.composables.adders.add-active-skill")
+
+local createBasicProjectileSkill = require("src.composables.skills.basic-projectile")
+local createCollisionHandler = require("src.composables.collision-handler")
 
 function love.load()
   Input = InputManagement.new()
-  EventEmitter = EE.new()
   World = love.physics.newWorld(0, 0, true)
+  EventEmitter = EE.new()
   Camera = camera.new(0,0)
+  createCollisionHandler(World, EventEmitter)
   Composable.init({
     world = World,
     input = Input,
@@ -48,12 +53,15 @@ function love.load()
     
   })
   addSprite(Player, {
-    drawPosition = 7,
+    drawPosition = 6,
     radius = 50,
     color = {1, 0, 0.5, 1,}
   })
-  addPlayerControl(Player)
+  -- renderHUD needs to be before addPlayerControl, because then playerControl mouse event handler runs before renderHUDs
+  -- and if user clicks outside inventory the player doesn't start instantly walking
   renderHUD(Player, {})
+  addPlayerControl(Player)
+  addActiveSkill(Player, "q", createBasicProjectileSkill())
 end
 
 function love.update(dt)
