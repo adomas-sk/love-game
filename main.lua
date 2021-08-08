@@ -53,9 +53,7 @@ function love.load()
     color = {1, 0, 0.5, 1,}
   })
   addPlayerControl(Player)
-
-  local hud = Composable.new("hud")
-  renderHUD(hud, {})
+  renderHUD(Player, {})
 end
 
 function love.update(dt)
@@ -68,6 +66,7 @@ function love.draw()
   Camera:attach()
   EventEmitter:emitDraw()
   Camera:detach()
+  EventEmitter:emitDraw(true)
 end
 
 function love.mousepressed(x, y, button)

@@ -48,9 +48,13 @@ function InputManagement.new()
   return inputManagement
 end
 
-function InputManagement:addEventHandler(event, handler)
+function InputManagement:addEventHandler(event, handler, release)
   if self.events[event] then
-    table.insert(self.events[event].pressed, 1, handler)
+    if release then
+      table.insert(self.events[event].release, 1, handler)
+    else
+      table.insert(self.events[event].pressed, 1, handler)
+    end
   else
     error("InputManagement: tried to add event: " .. event .." , which doesn't exist")
   end
