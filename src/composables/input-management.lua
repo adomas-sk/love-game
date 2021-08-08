@@ -12,7 +12,8 @@ function InputManagement.new()
   setmetatable(inputManagement, InputManagement)
 
   local input = {
-    w = 0
+    w = 0,
+    i = 0,
   }
   local function pressedHandler(key)
     return function()
@@ -36,6 +37,7 @@ function InputManagement.new()
   end
   local events = {
     w = createHandlers("w"),
+    i = createHandlers("i"),
     [mouseNames[1]] = createHandlers(mouseNames[1]),
     [mouseNames[2]] = createHandlers(mouseNames[2]),
     [mouseNames[3]] = createHandlers(mouseNames[3]),
@@ -46,9 +48,13 @@ function InputManagement.new()
   return inputManagement
 end
 
-function InputManagement:addEventHandler(event, handler)
+function InputManagement:addEventHandler(event, handler, release)
   if self.events[event] then
-    table.insert(self.events[event].pressed, 1, handler)
+    if release then
+      table.insert(self.events[event].release, 1, handler)
+    else
+      table.insert(self.events[event].pressed, 1, handler)
+    end
   else
     error("InputManagement: tried to add event: " .. event .." , which doesn't exist")
   end

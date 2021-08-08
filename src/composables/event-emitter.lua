@@ -11,11 +11,12 @@ function EventEmitter.new()
   table.insert(eventEmitter.drawEvents, {}) -- 2
   table.insert(eventEmitter.drawEvents, {}) -- 3
   table.insert(eventEmitter.drawEvents, {}) -- 4
-  table.insert(eventEmitter.drawEvents, {}) -- 5
-  table.insert(eventEmitter.drawEvents, {}) -- 6
+  table.insert(eventEmitter.drawEvents, {}) -- 5 Default
+  table.insert(eventEmitter.drawEvents, {}) -- 6 Player
   table.insert(eventEmitter.drawEvents, {}) -- 7
-  table.insert(eventEmitter.drawEvents, {}) -- 8
-  table.insert(eventEmitter.drawEvents, {}) -- 9
+  eventEmitter.hudDrawEvents = {}
+  table.insert(eventEmitter.hudDrawEvents, {}) -- 1 UI
+  table.insert(eventEmitter.hudDrawEvents, {}) -- 2 UI
 
   return eventEmitter
 end
@@ -25,10 +26,6 @@ function EventEmitter:addComposable(c)
     error("EventEmitter: Composable already exists - " .. c.id)
   end
   self.composables[c.id] = c
-  print("added " .. c.id)
-  for _, v in pairs(self.composables) do
-    print(v.id)
-  end
 end
 
 function EventEmitter:emitTo(cId, key, payload)
@@ -48,18 +45,30 @@ function EventEmitter:emit(key, payload)
   end
 end
 
-function EventEmitter:addDrawHandler(handler, pos)
+function EventEmitter:addDrawHandler(handler, pos, hud)
   local position = 5
   if pos then
     position = pos
   end
-  table.insert(self.drawEvents[position], 1, handler)
+  if hud then
+    table.insert(self.hudDrawEvents[position], 1, handler)
+  else
+    table.insert(self.drawEvents[position], 1, handler)
+  end
 end
 
-function EventEmitter:emitDraw()
-  for _,v in pairs(self.drawEvents) do
-    for _, drawHandler in pairs(v) do
-      drawHandler()
+function EventEmitter:emitDraw(hud)
+  if hud then
+    for _,v in pairs(self.hudDrawEvents) do
+      for _, drawHandler in pairs(v) do
+        drawHandler()
+      end
+    end
+  else
+    for _,v in pairs(self.drawEvents) do
+      for _, drawHandler in pairs(v) do
+        drawHandler()
+      end
     end
   end
 end

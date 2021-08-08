@@ -24,6 +24,9 @@ local function addPlayerControl(c)
   })
 
   local mouse1Handler = function(x, y)
+    if c.show.inventory then
+      return nil
+    end
     local cameraX, cameraY = c.camera:position()
     local windowW, windowH = love.graphics.getDimensions()
     local destination = vector(x + cameraX - windowW / 2, y + cameraY - windowH / 2)

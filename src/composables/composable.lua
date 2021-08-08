@@ -19,6 +19,7 @@ function Composable.new(id, excludeFromEventEmitter)
     draw = {},
     update = {},
     collide = {},
+    
   }
 
   return composable
