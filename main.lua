@@ -53,9 +53,11 @@ function love.load()
     
   })
   addSprite(Player, {
-    drawPosition = 6,
-    radius = 50,
-    color = {1, 0, 0.5, 1,}
+    spriteName = "walk",
+    animation = "walk"
+    -- drawPosition = 6,
+    -- radius = 50,
+    -- color = {1, 0, 0.5, 1,}
   })
   -- renderHUD needs to be before addPlayerControl, because then playerControl mouse event handler runs before renderHUDs
   -- and if user clicks outside inventory the player doesn't start instantly walking
@@ -66,7 +68,7 @@ end
 
 function love.update(dt)
   World:update(dt)
-  EventEmitter:emit("update")
+  EventEmitter:emit("update", dt)
   Camera:lookAt(Player.body:getPosition())
 end
 
