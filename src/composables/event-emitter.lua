@@ -25,6 +25,10 @@ function eventEmitter:addComposable(c)
   self.composables[c.id] = c
 end
 
+function eventEmitter:getComposable(cId)
+  return self.composables[cId]
+end
+
 function eventEmitter:removeComposable(cId)
   if not self.composables[cId] then
     error("eventEmitter: Trying to remove non existing composable - " .. cId)

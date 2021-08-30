@@ -1,3 +1,12 @@
+-- colliderData = {
+--   x = number,
+--   y = number,
+--   type = "circle" | "rectangle",
+--   radius = number,
+--   w = number,
+--   h = number,
+--   fixtureData = {}
+-- }
 local function addCollision(c, colliderData)
   c.body = love.physics.newBody(c.world, colliderData.x, colliderData.y, colliderData.type)
   if colliderData.shape == "circle" then
@@ -6,7 +15,16 @@ local function addCollision(c, colliderData)
     c.collider = love.physics.newRectangleShape(colliderData.w, colliderData.h)
   end
   c.fixture = love.physics.newFixture(c.body, c.collider)
-  c.fixture:setUserData(c.id)
+  local userData = {
+    id = c.id
+  }
+
+  if colliderData.fixtureData ~= nil then
+    for k,v in pairs(colliderData.fixtureData) do
+      userData[k] = v
+    end
+  end
+  c.fixture:setUserData(userData)
   c.shape = colliderData.shape
 
   local destroyHandler = function ()

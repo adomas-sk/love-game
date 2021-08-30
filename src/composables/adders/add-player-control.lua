@@ -3,9 +3,7 @@ local Composable = require("src.composables.composable")
 local addSprite = require("src.composables.adders.add-sprite")
 
 local function addPlayerControl(c)
-  if c.body == nil then
-    error("Tried to add playerControl to composable that does not have body")
-  end
+  assert(c.body ~= nil, "Tried to add playerControl to composable that does not have body")
 
   c.playerControl = {
     walkToPointSprite = Composable.new("walkToPoint")
