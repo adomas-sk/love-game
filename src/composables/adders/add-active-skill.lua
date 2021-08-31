@@ -1,7 +1,9 @@
+local vector = require("libs.vector")
+
 -- config: {
 --   id = string,
 --   speed = number,
---   castHandler = function,
+--   createCastHandler = function,
 -- }
 local function addActiveSkill(c, key, config)
   if not c.skills then
@@ -11,7 +13,14 @@ local function addActiveSkill(c, key, config)
   c.skills[config.id] = {
     speed = config.speed,
   }
-  c.input:addEventHandler(config.id, key, config.castHandler)
+  local getSource = function ()
+    return vector(c.body:getPosition())
+  end
+  c.input:addEventHandler(config.id, key, config.createCastHandler({
+    getSource = getSource,
+    offset = c.collider:getRadius(),
+    maxLifeSpan = 2,
+  }))
 end
 
 return addActiveSkill

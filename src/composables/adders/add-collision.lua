@@ -28,8 +28,8 @@ local function addCollision(c, colliderData)
   c.shape = colliderData.shape
 
   local destroyHandler = function ()
-    c.body:destroy()
     c.fixture:destroy()
+    c.body:destroy()
   end
 
   c:addEventHandler("destroy", destroyHandler)

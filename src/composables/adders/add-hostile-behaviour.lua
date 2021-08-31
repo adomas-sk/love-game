@@ -13,6 +13,15 @@ local function addHostileBehaviour(c, config)
 
     local target = c.eventEmitter:getComposable(config.target)
 
+    local getSource = function ()
+        return vector(c.body:getPosition())
+    end
+    local castHandler = config.skill.createCastHandler({
+        getSource = getSource,
+        offset = c.collider:getRadius(),
+        maxLifeSpan = 1,
+    })
+
     local checkTicks = 0
     local hostilityTicks = 0
     local updateHandler = function()
@@ -22,18 +31,21 @@ local function addHostileBehaviour(c, config)
                 checkTicks = 0
             end
             checkTicks = checkTicks + 1
-        end
-        local targetPos = vector(target.body:getPosition())
-        local position = vector(c.body:getPosition())
-        local distance = targetPos:dist(position)
-        if distance < config.minDistance then
-            if hostilityTicks == config.skill.speed then
-                config.skill.castHandler()
+        else
+            local targetPos = vector(target.body:getPosition())
+            local position = vector(c.body:getPosition())
+            local distance = targetPos:dist(position)
+            if distance < config.minDistance then
+                if hostilityTicks == config.skill.speed then
+                    castHandler({
+                        destination = targetPos
+                    })
+                    hostilityTicks = 0
+                end
+                hostilityTicks = hostilityTicks + 1
+            else
                 hostilityTicks = 0
             end
-            hostilityTicks = hostilityTicks + 1
-        else
-            hostilityTicks = 0
         end
     end
     c:addEventHandler("update", updateHandler)

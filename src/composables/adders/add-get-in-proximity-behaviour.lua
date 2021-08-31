@@ -12,7 +12,7 @@ local function addGetInProximityBehaviour(c, config)
         destination = nil,
     }
     local player = c.eventEmitter:getComposable("player")
-    assert(player ~= nil, "Player is not there")
+    assert(player ~= nil, "addGetInProximityBehaviour: Player is not in eventEmitter")
 
     local updateTick = 0
     local updateHandler = function()

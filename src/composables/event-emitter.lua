@@ -30,19 +30,21 @@ function eventEmitter:getComposable(cId)
 end
 
 function eventEmitter:removeComposable(cId)
-  if not self.composables[cId] then
-    error("eventEmitter: Trying to remove non existing composable - " .. cId)
-  end
+  assert(self.composables[cId], "eventEmitter: Trying to remove non existing composable - " .. cId)
   self.composables[cId] = nil
   self:removeDrawHandler(cId)
 end
 
+-- Some composables (eg. projectiles) are destroyed after collision, but
+-- they can have collisions with 2 colliders at the same time
+-- whick would cause the projectile to emit destroy multiple times
 function eventEmitter:emitTo(cId, key, payload)
   if self.composables[cId] == nil then
-    error("eventEmitter: emitting event to non existing composable - " .. cId .. ", key - " .. key)
-  end
-  for _, eventHandler in pairs(self.composables[cId].events[key]) do
-    eventHandler(payload)
+    print("eventEmitter WARNING: emitting event to non existing composable - " .. cId .. ", key - " .. key)
+  else
+    for _, eventHandler in pairs(self.composables[cId].events[key]) do
+      eventHandler(payload)
+    end
   end
 end
 

@@ -7,12 +7,14 @@ function composable.init(config)
   composable.world = config.world
   composable.eventEmitter = config.eventEmitter
 end
-
-function composable.new(id, excludeFromEventEmitter)
+-- config: {
+--   excludeFromEventEmitter = bool,
+-- }
+function composable.new(id, config)
   local comp = { id = id }
   setmetatable(comp, composable)
 
-  if excludeFromEventEmitter == nil then
+  if not config or config.excludeFromEventEmitter == nil then
     comp.eventEmitter:addComposable(comp)
   end
   comp.events = {

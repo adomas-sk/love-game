@@ -21,14 +21,13 @@ local function addPlayerControl(c)
     color = {1, 1, 0.5, 1}
   })
 
-  local mouse1Handler = function(x, y)
+  local mouse1Handler = function(inputData)
     if c.show.inventory then
       return nil
     end
-    local cameraX, cameraY = c.camera:position()
-    local windowW, windowH = love.graphics.getDimensions()
-    local destination = vector(x + cameraX - windowW / 2, y + cameraY - windowH / 2)
-    c.playerControl.destination = destination
+    -- this shit needs to be unpacked and turned to vector again because of metatable shit
+    -- TODO: learn how metatable shit works
+    c.playerControl.destination = vector(inputData.destination:unpack())
   end
 
   local updateHandler = function()

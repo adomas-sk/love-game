@@ -1,5 +1,3 @@
-local hitables = {player = true, baddie = true}
-
 local function createCollisionHandler (world, eventEmitter)
   local handleBeingHit = function(cId, damage)
     eventEmitter:emitTo(cId, "takeDamage", damage)

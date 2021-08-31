@@ -1,3 +1,5 @@
+local vector = require("libs.vector")
+
 local inputManagement = {}
 inputManagement.__index = inputManagement
 
@@ -8,32 +10,7 @@ local mouseNames = {
 }
 
 function inputManagement.new()
-  -- local input = {
-  --   q = 0,
-  --   w = 0,
-  --   e = 0,
-  --   r = 0,
-  --   i = 0,
-  -- }
-  -- local function pressedHandler(key)
-  --   return function()
-  --     if input[key] == false then
-  --       input.w = true
-  --     end
-  --   end
-  -- end
-  -- local function releaseHandler(key)
-  --   return function()
-  --     if input[key] then
-  --       input.w = false
-  --     end
-  --   end
-  -- end
   local function createHandlers(key)
-    -- return {
-    --   pressed = { pressedHandler(key) },
-    --   release = { releaseHandler(key) }
-    -- }
     return {
       pressed = {},
       release = {}
@@ -50,7 +27,6 @@ function inputManagement.new()
     [mouseNames[3]] = createHandlers(mouseNames[3]),
   }
 
-  -- inputManagement.input = input
   inputManagement.events = events
   return inputManagement
 end
@@ -83,28 +59,41 @@ function inputManagement:removeEventHandler(id)
   end
 end
 
-function inputManagement:keypressed(key, x, y)
+function inputManagement:keypressed(key)
   if self.events[key] then
     for _i, value in pairs(self.events[key].pressed) do
-      value.handler(x, y)
+      value.handler(self:getInputData())
     end
   end
 end
 
-function inputManagement:keyrelease(key, x, y)
+function inputManagement:keyrelease(key)
   if self.events[key] then
     for _i, value in pairs(self.events[key].release) do
-      value.handler(x, y)
+      value.handler(self:getInputData())
     end
   end
 end
 
-function inputManagement:mousepressed(x, y, button)
-  self:keypressed(mouseNames[button], x, y)
+function inputManagement:mousepressed(button)
+  self:keypressed(mouseNames[button])
 end
 
-function inputManagement:mouserelease(x, y, button)
-  self:keyrelease(mouseNames[button], x, y)
+function inputManagement:mouserelease(button)
+  self:keyrelease(mouseNames[button])
+end
+
+function inputManagement:getInputData()
+  local mouseX,mouseY = love.mouse.getPosition()
+  local cameraX,cameraY = Camera:position()
+  local windowW,windowH = love.graphics.getDimensions()
+  local destination = vector(mouseX + cameraX - windowW / 2, mouseY + cameraY - windowH / 2)
+
+  local inputData = {
+    mouse = vector(mouseX,mouseY),
+    destination = destination
+  }
+  return inputData
 end
 
 return inputManagement

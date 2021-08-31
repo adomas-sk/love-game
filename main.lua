@@ -17,7 +17,11 @@ local addHealth = require("src.composables.adders.add-health")
 local createBasicProjectileSkill = require("src.composables.skills.basic-projectile")
 local createCollisionHandler = require("src.composables.collision-handler")
 
+local buildGrid = require("src.composables.builders.grid")
+
 function love.load()
+  local dispW, dispH = love.window.getDesktopDimensions()
+  love.window.setMode(dispW - 600, dispH-53-200)
   Input = InputManagement.new()
   World = love.physics.newWorld(0, 0, true)
   EventEmitter = EE.new()
@@ -30,21 +34,7 @@ function love.load()
     eventEmitter = EventEmitter,
   })
 
-  local static = Composable.new("static")
-  addCollision(static, {
-    x = 400,
-    y = 400,
-    w = 200,
-    h = 50,
-    type = "static",
-    shape = "rectangle",
-  })
-  addSprite(static, {
-    drawPosition = 3,
-    w = 200,
-    h = 50,
-    color = {0, 1, 0.5, 1,}
-  })
+  buildGrid()
 
   Player = Composable.new("player")
   addCollision(Player, {
@@ -72,7 +62,7 @@ function love.load()
 
   local baddie = Composable.new("baddie")
   addCollision(baddie, {
-    x = 200,
+    x = 100,
     y = 100,
     radius = 20,
     shape = "circle",
@@ -116,11 +106,11 @@ function love.draw()
 end
 
 function love.mousepressed(x, y, button)
-  Input:mousepressed(x, y, button)
+  Input:mousepressed(button)
 end
 
 function love.mousereleased(x, y, button)
-  Input:mouserelease(x, y, button)
+  Input:mouserelease(button)
 end
 
 function love.keypressed(key)
