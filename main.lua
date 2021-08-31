@@ -10,6 +10,9 @@ local addPlayerControl = require("src.composables.adders.add-player-control")
 local addSprite = require("src.composables.adders.add-sprite")
 local addCollision = require("src.composables.adders.add-collision")
 local addActiveSkill = require("src.composables.adders.add-active-skill")
+local addGetInProximityBehaviour = require("src.composables.adders.add-get-in-proximity-behaviour")
+local addHostileBehaviour = require("src.composables.adders.add-hostile-behaviour")
+local addHealth = require("src.composables.adders.add-health")
 
 local createBasicProjectileSkill = require("src.composables.skills.basic-projectile")
 local createCollisionHandler = require("src.composables.collision-handler")
@@ -50,20 +53,53 @@ function love.load()
     radius = 50,
     shape = "circle",
     type = "dynamic",
-    
   })
   addSprite(Player, {
-    spriteName = "walk",
-    animation = "walk"
-    -- drawPosition = 6,
-    -- radius = 50,
-    -- color = {1, 0, 0.5, 1,}
+    -- spriteName = "walk",
+    -- animation = "walk"
+    drawPosition = 6,
+    radius = 50,
+    color = {1, 0, 0.5, 1,}
   })
   -- renderHUD needs to be before addPlayerControl, because then playerControl mouse event handler runs before renderHUDs
   -- and if user clicks outside inventory the player doesn't start instantly walking
   renderHUD(Player, {})
   addPlayerControl(Player)
-  addActiveSkill(Player, "q", createBasicProjectileSkill())
+  addActiveSkill(Player,
+    "q",
+    createBasicProjectileSkill({ from = "player", damage = 1 })
+  )
+
+  local baddie = Composable.new("baddie")
+  addCollision(baddie, {
+    x = 200,
+    y = 100,
+    radius = 20,
+    shape = "circle",
+    type = "dynamic",
+    fixtureData = {
+      dmgBy = "player"
+    }
+  })
+  addSprite(baddie, {
+    drawPosition = 6,
+    radius = 20,
+    color = {1, 0, 0, 1,}
+  })
+  addGetInProximityBehaviour(baddie, {
+    speed = 50,
+    minDistance = 150,
+    maxDistance = 300
+  })
+  addHostileBehaviour(baddie, {
+    target = "player",
+    minDistance = 150,
+    skill = createBasicProjectileSkill({ from = "baddie", damage = 1 })
+  })
+  addHealth(baddie, {
+    max = 10,
+    initial = 10
+  })
 end
 
 function love.update(dt)

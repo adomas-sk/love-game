@@ -4,7 +4,11 @@ local addSprite = require("src.composables.adders.add-sprite")
 local addCollision = require("src.composables.adders.add-collision")
 local composable = require("src.composables.composable")
 
-local function createBasicProjectileSkill()
+-- TODO: refactor this function to be able to add this skill to more composables
+-- projectileData: {
+--   from = string
+-- }
+local function createBasicProjectileSkill(projectileData)
   local projectileCount = 0
   local castHandler = function()
     projectileCount = projectileCount + 1
@@ -32,6 +36,10 @@ local function createBasicProjectileSkill()
       radius = projectileRadius,
       type = "dynamic",
       shape = "circle",
+      fixtureData = {
+        from = projectileData.from,
+        damage = projectileData.damage
+      }
     })
     addSprite(projectile, {
       drawPosition = 4,
