@@ -3,17 +3,22 @@ local vector = require("libs.vector")
 local addSprite = require("src.composables.adders.add-sprite")
 local addCollision = require("src.composables.adders.add-collision")
 local composable = require("src.composables.composable")
-
--- projectileData: {
+-- skillLifeCycle = {
+--   precast = function(),
+--   contact = function(),
+--   destruct = function(),
+-- }
+-- projectileData = {
 --   from = string
 --   masks = categories[]
 --   categories = categories[]
 --   damage = number
 -- }
--- handlerConfig: {
+-- handlerConfig = {
 --   getSource = function(): vector
 --   offset = number
 --   maxLifeSpan = number
+--   lifeCycle = skillLifeCycle
 -- }
 local projectileCount = 0
 local function createBasicProjectileSkill(projectileData)
@@ -63,9 +68,20 @@ local function createBasicProjectileSkill(projectileData)
       })
 
       projectile.body:setLinearVelocity(direction:setmag(100):unpack())
-
+      if handlerConfig.lifeCycle and handlerConfig.lifeCycle.precast then
+        handlerConfig.lifeCycle.precast()
+      end
       local endOfLifeHandler = function ()
         projectile.eventEmitter:emitTo(projectileId, "destroy")
+        if handlerConfig.lifeCycle and handlerConfig.lifeCycle.destruct then
+          handlerConfig.lifeCycle.destruct()
+        end
+      end
+      local collisionHandler = function ()
+        if handlerConfig.lifeCycle and handlerConfig.lifeCycle.contact then
+          handlerConfig.lifeCycle.contact()
+        end
+        endOfLifeHandler()
       end
       local updateHandler = function(delta)
         if lifeSpan > handlerConfig.maxLifeSpan then
@@ -74,7 +90,7 @@ local function createBasicProjectileSkill(projectileData)
         lifeSpan = lifeSpan + delta
       end
       projectile:addEventHandler("update", updateHandler)
-      projectile:addEventHandler("collide", endOfLifeHandler)
+      projectile:addEventHandler("collide", collisionHandler)
     end
   end
 

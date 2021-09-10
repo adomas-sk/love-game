@@ -10,8 +10,11 @@ local function addActiveSkill(c, key, config)
     c.skills = {}
   end
 
-  assert(c.skills[config.id] == nil, "addActiveSkill: skill added to composable")
-
+  -- assert(c.skills[config.id] == nil, "addActiveSkill: skill already added to composable")
+  -- TODO: do not add already added skills
+  if c.skills[config.id] ~= nil then
+    return
+  end
   c.skills[config.id] = {
     speed = config.speed,
   }
@@ -22,6 +25,11 @@ local function addActiveSkill(c, key, config)
     getSource = getSource,
     offset = c.collider:getRadius(),
     maxLifeSpan = 2,
+    lifeCycle = {
+      precast = function() print("Precast") end,
+      contact = function() print("Contact") end,
+      destruct = function() print("Destruct") end,
+    }
   }))
 end
 

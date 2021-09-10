@@ -9,9 +9,7 @@ local renderHUD = require("src.composables.hud.render-hud")
 local addPlayerControl = require("src.composables.adders.add-player-control")
 local addSprite = require("src.composables.adders.add-sprite")
 local addCollision = require("src.composables.adders.add-collision")
-local addActiveSkill = require("src.composables.adders.add-active-skill")
 
-local createBasicProjectileSkill = require("src.composables.skills.basic-projectile")
 local createCollisionHandler = require("src.composables.collision-handler")
 
 local buildGrid = require("src.composables.builders.grid")
@@ -58,17 +56,6 @@ function love.load()
   -- and if user clicks outside inventory the player doesn't start instantly walking
   addPlayerControl(Player)
   renderHUD(Player, {})
-  -- addActiveSkill(Player,
-  --   "q",
-  --   createBasicProjectileSkill(
-  --     {
-  --       from = "player",
-  --       damage = 1,
-  --       masks = { "player", "playerProjectile" },
-  --       categories = { "playerProjectile" }
-  --     }
-  --   )
-  -- )
 
   buildEnemy({
     initialCoords = {100,100}
@@ -95,6 +82,7 @@ function love.draw()
 end
 
 function love.mousepressed(x, y, button)
+  print("MOUSE IS PRESSED")
   Input:mousepressed(button)
 end
 
