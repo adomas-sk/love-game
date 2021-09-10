@@ -1,13 +1,14 @@
 local assets = require("src.assets.assets")
 
 -- spriteData: {
---   x = number,
---   y = number,
 --   spriteName = string,
 --   shape = "circle" | "rectangle",
+--   animation = string,
 --   w = number,
 --   h = number,
 --   radius = number,
+--   color = {1,1,1,1}
+--   getPosition = function(): x, y
 -- }
 local function addSprite(c, spriteData)
   if spriteData.getPosition == nil and c.body then

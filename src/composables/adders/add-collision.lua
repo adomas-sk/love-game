@@ -6,7 +6,16 @@
 --   w = number,
 --   h = number,
 --   fixtureData = {}
+--   categories = categories[]
+--   masks = categories[]
 -- }
+local categories = {
+  player = 1,
+  enemy = 2,
+  playerProjectile = 3,
+  enemyProjectile = 4,
+  wall = 5,
+}
 local function addCollision(c, colliderData)
   c.body = love.physics.newBody(c.world, colliderData.x, colliderData.y, colliderData.type)
   if colliderData.shape == "circle" then
@@ -25,7 +34,27 @@ local function addCollision(c, colliderData)
     end
   end
   c.fixture:setUserData(userData)
+
   c.shape = colliderData.shape
+
+  if colliderData.categories then
+    local shapeCategories = {}
+    for _,v in ipairs(colliderData.categories) do
+      local category = categories[v]
+      assert(category ~= nil, "addCollision: category not found - " .. v)
+      table.insert(shapeCategories, category)
+    end
+    c.fixture:setCategory(unpack(shapeCategories))
+  end
+  if colliderData.masks then
+    local shapeMasks = {}
+    for _,v in ipairs(colliderData.masks) do
+      local mask = categories[v]
+      assert(mask ~= nil, "addCollision: mask not found - " .. v)
+      table.insert(shapeMasks, mask)
+    end
+    c.fixture:setMask(unpack(shapeMasks))
+  end
 
   local destroyHandler = function ()
     c.fixture:destroy()

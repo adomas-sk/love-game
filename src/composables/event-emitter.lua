@@ -35,7 +35,7 @@ function eventEmitter:removeComposable(cId)
   self:removeDrawHandler(cId)
 end
 
--- Some composables (eg. projectiles) are destroyed after collision, but
+-- TODO: Some composables (eg. projectiles) are destroyed after collision, but
 -- they can have collisions with 2 colliders at the same time
 -- whick would cause the projectile to emit destroy multiple times
 function eventEmitter:emitTo(cId, key, payload)
