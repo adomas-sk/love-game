@@ -4,9 +4,11 @@ local addSprite = require("src.composables.adders.add-sprite")
 local addCollision = require("src.composables.adders.add-collision")
 local composable = require("src.composables.composable")
 
--- TODO: refactor this function to be able to add this skill to more composables
 -- projectileData: {
 --   from = string
+--   masks = categories[]
+--   categories = categories[]
+--   damage = number
 -- }
 -- handlerConfig: {
 --   getSource = function(): vector
@@ -50,7 +52,9 @@ local function createBasicProjectileSkill(projectileData)
         fixtureData = {
           from = projectileData.from,
           damage = projectileData.damage
-        }
+        },
+        masks = projectileData.masks,
+        categories = projectileData.categories,
       })
       addSprite(projectile, {
         drawPosition = 4,
@@ -58,7 +62,7 @@ local function createBasicProjectileSkill(projectileData)
         color = {0.5, 1, 0.5, 1}
       })
 
-      projectile.body:setLinearVelocity(direction:setmag(150):unpack())
+      projectile.body:setLinearVelocity(direction:setmag(100):unpack())
 
       local endOfLifeHandler = function ()
         projectile.eventEmitter:emitTo(projectileId, "destroy")

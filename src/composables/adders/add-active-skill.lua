@@ -10,6 +10,8 @@ local function addActiveSkill(c, key, config)
     c.skills = {}
   end
 
+  assert(c.skills[config.id] == nil, "addActiveSkill: skill added to composable")
+
   c.skills[config.id] = {
     speed = config.speed,
   }

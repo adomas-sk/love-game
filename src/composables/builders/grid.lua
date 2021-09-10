@@ -26,6 +26,7 @@ local function buildGrid(grid)
           h = BLOCK_SIZE,
           type = "static",
           shape = "rectangle",
+          categories = {"wall"}
         })
         addSprite(block, {
           drawPosition = 3,

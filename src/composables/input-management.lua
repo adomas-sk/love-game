@@ -22,6 +22,7 @@ function inputManagement.new()
     e = createHandlers("e"),
     r = createHandlers("r"),
     i = createHandlers("i"),
+    escape = createHandlers("escape"),
     [mouseNames[1]] = createHandlers(mouseNames[1]),
     [mouseNames[2]] = createHandlers(mouseNames[2]),
     [mouseNames[3]] = createHandlers(mouseNames[3]),
@@ -34,15 +35,17 @@ end
 function inputManagement:addEventHandler(id, event, handler, release)
   if self.events[event] then
     if release then
-      table.insert(self.events[event].release, 1, { id = id, handler = handler })
+      table.insert(self.events[event].release, { id = id, handler = handler })
     else
-      table.insert(self.events[event].pressed, 1, { id = id, handler = handler })
+      table.insert(self.events[event].pressed, { id = id, handler = handler })
     end
   else
     error("inputManagement: tried to add event: " .. event .." , which doesn't exist")
   end
 end
 
+-- TODO: removing event reduces event handler list which makes the last event not trigger
+-- add removed events to some list and only remove them after all handlers have been called
 function inputManagement:removeEventHandler(id)
   for _,event in pairs(self.events) do
     for _,interaction in pairs(event) do

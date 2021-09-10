@@ -10,19 +10,19 @@ local addPlayerControl = require("src.composables.adders.add-player-control")
 local addSprite = require("src.composables.adders.add-sprite")
 local addCollision = require("src.composables.adders.add-collision")
 local addActiveSkill = require("src.composables.adders.add-active-skill")
-local addGetInProximityBehaviour = require("src.composables.adders.add-get-in-proximity-behaviour")
-local addHostileBehaviour = require("src.composables.adders.add-hostile-behaviour")
-local addHealth = require("src.composables.adders.add-health")
 
 local createBasicProjectileSkill = require("src.composables.skills.basic-projectile")
 local createCollisionHandler = require("src.composables.collision-handler")
 
 local buildGrid = require("src.composables.builders.grid")
+local buildEnemy = require("src.composables.builders.enemy")
+local buildDroppedItem = require("src.composables.builders.dropped-item")
 
 function love.load()
   local dispW, dispH = love.window.getDesktopDimensions()
   love.window.setMode(dispW - 600, dispH-53-200)
   Input = InputManagement.new()
+  Input:addEventHandler("esc", "escape", function() love.event.quit(0) end)
   World = love.physics.newWorld(0, 0, true)
   EventEmitter = EE.new()
   Camera = camera.new(0,0)
@@ -43,6 +43,8 @@ function love.load()
     radius = 50,
     shape = "circle",
     type = "dynamic",
+    categories = {"player"},
+    masks = {"playerProjectile"}
   })
   addSprite(Player, {
     -- spriteName = "walk",
@@ -51,44 +53,31 @@ function love.load()
     radius = 50,
     color = {1, 0, 0.5, 1,}
   })
-  -- renderHUD needs to be before addPlayerControl, because then playerControl mouse event handler runs before renderHUDs
+  -- TODO: Fix this \/ - Add possibility to run some input handler before others
+  -- addPlayerControl needs to be before renderHUD, because then playerControl mouse event handler runs before renderHUDs
   -- and if user clicks outside inventory the player doesn't start instantly walking
-  renderHUD(Player, {})
   addPlayerControl(Player)
-  addActiveSkill(Player,
-    "q",
-    createBasicProjectileSkill({ from = "player", damage = 1 })
-  )
+  renderHUD(Player, {})
+  -- addActiveSkill(Player,
+  --   "q",
+  --   createBasicProjectileSkill(
+  --     {
+  --       from = "player",
+  --       damage = 1,
+  --       masks = { "player", "playerProjectile" },
+  --       categories = { "playerProjectile" }
+  --     }
+  --   )
+  -- )
 
-  local baddie = Composable.new("baddie")
-  addCollision(baddie, {
-    x = 100,
-    y = 100,
-    radius = 20,
-    shape = "circle",
-    type = "dynamic",
-    fixtureData = {
-      dmgBy = "player"
-    }
+  buildEnemy({
+    initialCoords = {100,100}
   })
-  addSprite(baddie, {
-    drawPosition = 6,
-    radius = 20,
-    color = {1, 0, 0, 1,}
-  })
-  addGetInProximityBehaviour(baddie, {
-    speed = 50,
-    minDistance = 150,
-    maxDistance = 300
-  })
-  addHostileBehaviour(baddie, {
-    target = "player",
-    minDistance = 150,
-    skill = createBasicProjectileSkill({ from = "baddie", damage = 1 })
-  })
-  addHealth(baddie, {
-    max = 10,
-    initial = 10
+
+  buildDroppedItem({
+    x = 500,
+    y = 450,
+    text = "SUPER MEGA ITEM",
   })
 end
 
