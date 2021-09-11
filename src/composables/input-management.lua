@@ -9,13 +9,13 @@ local mouseNames = {
   [3] = "mouse3"
 }
 
+local function createHandlers(key)
+  return {
+    pressed = {},
+    release = {}
+  }
+end
 function inputManagement.new()
-  local function createHandlers(key)
-    return {
-      pressed = {},
-      release = {}
-    }
-  end
   local events = {
     q = createHandlers("q"),
     w = createHandlers("w"),
@@ -60,6 +60,10 @@ function inputManagement:removeEventHandler(id)
       end
     end
   end
+end
+
+function inputManagement:removeEventHandlerForKey(key)
+  self.events[key] = createHandlers(key)
 end
 
 function inputManagement:keypressed(key)

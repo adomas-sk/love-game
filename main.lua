@@ -82,7 +82,6 @@ function love.draw()
 end
 
 function love.mousepressed(x, y, button)
-  print("MOUSE IS PRESSED")
   Input:mousepressed(button)
 end
 
