@@ -30,7 +30,7 @@ local function buildDroppedItem(config)
   })
   local clickPickup = function()
     local pickedUp = Player.inventory:addToFirst({
-      color = {r=1,g=0,b=0,a=1},
+      color = {1,0,0,1},
       skill = createBasicProjectileSkill
     })
     if pickedUp then
