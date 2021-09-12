@@ -1,3 +1,4 @@
+local vector = require("libs/vector")
 
 local Composable = require("src.composables.composable")
 local addSprite = require("src.composables.adders.add-sprite")
@@ -33,10 +34,18 @@ local function buildEnemy(config)
     radius = 20,
     color = {1, 0, 0, 1,}
   })
+  local getDestination = function ()
+    local player = EventEmitter:getComposable("player")
+    if player ~= nil then
+      return vector(player.body:getPosition())
+    end
+    return nil
+  end
   addGetInProximityBehaviour(baddie, {
     speed = 50,
     minDistance = 150,
-    maxDistance = 300
+    maxDistance = 300,
+    getDestination = getDestination
   })
   addHostileBehaviour(baddie, {
     target = "player",

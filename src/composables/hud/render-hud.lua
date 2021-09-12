@@ -9,9 +9,9 @@ local function renderHUD(c, config)
   c.dragging = nil
 
   local windowW, windowH = love.graphics.getDimensions()
-  local hudW, hudH = 325, 100
-  local hudX, hudY = windowW / 2 - hudW / 2, windowH - hudH
-  local skillW, skillH = 50, 50
+  -- local hudW, hudH = 325, 100
+  -- local hudX, hudY = windowW / 2 - hudW / 2, windowH - hudH
+  -- local skillW, skillH = 50, 50
 
   local invW, invH = 430, 275
   local skillsW,skillsH = 225,275
@@ -35,20 +35,20 @@ local function renderHUD(c, config)
     end
     love.graphics.print(love.timer.getFPS())
     -- Container
-    love.graphics.setColor(1, 1, 1, 0.8)
-    love.graphics.rectangle("fill", hudX, hudY, hudW, hudH)
+    -- love.graphics.setColor(1, 1, 1, 0.8)
+    -- love.graphics.rectangle("fill", hudX, hudY, hudW, hudH)
 
-    -- Skills
-    love.graphics.setColor(0.3,0.3,1,1)
-    love.graphics.rectangle("fill", hudX + skillW / 2, hudY + skillH / 2, skillW, skillH)
-    love.graphics.rectangle("fill", hudX + skillW * 2, hudY + skillH / 2, skillW, skillH)
-    love.graphics.rectangle("fill", hudX + skillW * 3.5, hudY + skillH / 2, skillW, skillH)
-    love.graphics.rectangle("fill", hudX + skillW * 5, hudY + skillH / 2, skillW, skillH)
-    love.graphics.setColor(1,1,1,1)
-    love.graphics.print("Q", hudX + skillW / 2, hudY + skillH / 2)
-    love.graphics.print("W", hudX + skillW * 2, hudY + skillH / 2)
-    love.graphics.print("E", hudX + skillW * 3.5, hudY + skillH / 2)
-    love.graphics.print("R", hudX + skillW * 5, hudY + skillH / 2)
+    -- -- Skills
+    -- love.graphics.setColor(0.3,0.3,1,1)
+    -- love.graphics.rectangle("fill", hudX + skillW / 2, hudY + skillH / 2, skillW, skillH)
+    -- love.graphics.rectangle("fill", hudX + skillW * 2, hudY + skillH / 2, skillW, skillH)
+    -- love.graphics.rectangle("fill", hudX + skillW * 3.5, hudY + skillH / 2, skillW, skillH)
+    -- love.graphics.rectangle("fill", hudX + skillW * 5, hudY + skillH / 2, skillW, skillH)
+    -- love.graphics.setColor(1,1,1,1)
+    -- love.graphics.print("Q", hudX + skillW / 2, hudY + skillH / 2)
+    -- love.graphics.print("W", hudX + skillW * 2, hudY + skillH / 2)
+    -- love.graphics.print("E", hudX + skillW * 3.5, hudY + skillH / 2)
+    -- love.graphics.print("R", hudX + skillW * 5, hudY + skillH / 2)
 
     -- Inventory
     if c.show.inventory then
@@ -80,14 +80,18 @@ local function renderHUD(c, config)
       inventoryToggleHandler()
     end
     local pressedSlot = slot.isOnSlot(x,y)
-    c.dragging = pressedSlot
+    if pressedSlot.type == slot.SLOT_TYPES.backpack then
+      c.dragging = pressedSlot
+    end
   end
 
   local mouse1ReleaseHandler = function(inputData)
     local x,y = inputData.mouse:unpack()
     if c.dragging then
       local pressedSlot = slot.isOnSlot(x,y)
-      slot.switchSlots(pressedSlot, c.dragging)
+      if pressedSlot.type == slot.SLOT_TYPES.backpack then
+        slot.switchSlots(pressedSlot, c.dragging)
+      end
     end
     c.dragging = nil
   end

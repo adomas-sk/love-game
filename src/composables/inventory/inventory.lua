@@ -89,35 +89,4 @@ function inventory:addToFirst(item)
   return false
 end
 
-function inventory:parseEquipment()
-  -- TODO: Make this less stupid
-  self.c.input:removeEventHandlerForKey("q")
-  self.c.input:removeEventHandlerForKey("w")
-  self.c.input:removeEventHandlerForKey("e")
-  self.c.input:removeEventHandlerForKey("r")
-
-  for slotIndex=1,self.gear do
-    local skillsType = slot.SLOT_TYPES.skillDisabled
-    if self.weapons[slotIndex].item then
-      skillsType = slot.SLOT_TYPES.skillEnabled
-      if self.weapons[slotIndex].item.skill then
-        addActiveSkill(self.c,
-          "q",
-          self.weapons[slotIndex].item.skill(
-            {
-              from = "player",
-              damage = 1,
-              masks = { "player", "playerProjectile" },
-              categories = { "playerProjectile" }
-            }
-          )
-        )
-      end
-    end
-    for skill=1,self.skillCount do
-      self.skills[slotIndex][skill].type = skillsType
-    end
-  end
-end
-
 return inventory

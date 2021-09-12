@@ -1,9 +1,10 @@
 local vector = require("libs/vector")
 
--- config: {
+-- config = {
 --   speed = number,
 --   minDistance = number, -- at what distance aggresion starts
 --   maxDistnace = number -- at what distance body starts moving towards aggresee
+--   getDestination = function()
 -- }
 local function addGetInProximityBehaviour(c, config)
   assert(c.body ~= nil, "Tried to add GetInProximity behaviour to composable without body")
@@ -11,21 +12,20 @@ local function addGetInProximityBehaviour(c, config)
   c.getInProximityBehaviour = {
     destination = nil,
   }
-  local player = c.eventEmitter:getComposable("player")
-  assert(player ~= nil, "addGetInProximityBehaviour: Player is not in eventEmitter")
-
   local updateTick = 0
   local updateHandler = function()
     if updateTick > 10 then
-      local position = vector(c.body:getPosition())
-      local playerPos = vector(player.body:getPosition())
-      local distance = position:dist(playerPos)
-      if distance < config.minDistance then
-        c.getInProximityBehaviour.destination = nil
-      elseif distance > config.maxDistance then
-        c.getInProximityBehaviour.destination = nil
-      else
-        c.getInProximityBehaviour.destination = playerPos
+      local destination = config.getDestination()
+      if destination ~= nil then
+        local position = vector(c.body:getPosition())
+        local distance = position:dist(destination)
+        if config.minDistance and distance < config.minDistance then
+          c.getInProximityBehaviour.destination = nil
+        elseif config.maxDistance and distance > config.maxDistance then
+          c.getInProximityBehaviour.destination = nil
+        else
+          c.getInProximityBehaviour.destination = destination
+        end
       end
       updateTick = 0
     end

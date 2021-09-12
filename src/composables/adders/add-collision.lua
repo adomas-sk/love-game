@@ -15,6 +15,8 @@ local categories = {
   playerProjectile = 3,
   enemyProjectile = 4,
   wall = 5,
+  robot = 6,
+  building = 6,
 }
 local function addCollision(c, colliderData)
   c.body = love.physics.newBody(c.world, colliderData.x, colliderData.y, colliderData.type)

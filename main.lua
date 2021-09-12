@@ -7,6 +7,7 @@ local EE = require("src.composables.event-emitter")
 local renderHUD = require("src.composables.hud.render-hud")
 
 local addPlayerControl = require("src.composables.adders.add-player-control")
+local addPlayerGuns = require("src.composables.adders.add-player-guns")
 local addSprite = require("src.composables.adders.add-sprite")
 local addCollision = require("src.composables.adders.add-collision")
 
@@ -14,7 +15,25 @@ local createCollisionHandler = require("src.composables.collision-handler")
 
 local buildGrid = require("src.composables.builders.grid")
 local buildEnemy = require("src.composables.builders.enemy")
+local buildRobot = require("src.composables.builders.robot")
+local buildBuilding = require("src.composables.builders.building")
 local buildDroppedItem = require("src.composables.builders.dropped-item")
+
+function love.mousepressed(x, y, button)
+  Input:mousepressed(button)
+end
+
+function love.mousereleased(x, y, button)
+  Input:mouserelease(button)
+end
+
+function love.keypressed(key)
+  Input:keypressed(key)
+end
+
+function love.keyreleased(key)
+  Input:keyrelease(key)
+end
 
 function love.load()
   local dispW, dispH = love.window.getDesktopDimensions()
@@ -55,8 +74,21 @@ function love.load()
   -- addPlayerControl needs to be before renderHUD, because then playerControl mouse event handler runs before renderHUDs
   -- and if user clicks outside inventory the player doesn't start instantly walking
   addPlayerControl(Player)
+  addPlayerGuns(Player)
   renderHUD(Player, {})
 
+  buildRobot({
+    initialCoords = {30, 30}
+  })
+  buildRobot({
+    initialCoords = {200, 50}
+  })
+  buildBuilding({
+    initialCoords = {400, 400}
+  })
+  buildBuilding({
+    initialCoords = {300, 0}
+  })
   buildEnemy({
     initialCoords = {100,100}
   })
@@ -79,20 +111,4 @@ function love.draw()
   EventEmitter:emitDraw()
   Camera:detach()
   EventEmitter:emitDraw(true)
-end
-
-function love.mousepressed(x, y, button)
-  Input:mousepressed(button)
-end
-
-function love.mousereleased(x, y, button)
-  Input:mouserelease(button)
-end
-
-function love.keypressed(key)
-  Input:keypressed(key)
-end
-
-function love.keyreleased(key)
-  Input:keyrelease(key)
 end
