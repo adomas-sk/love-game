@@ -58,12 +58,6 @@ function slot.switchSlots(slot1, slot2)
   local temp = slot.SLOTS[index1].item
   slot.SLOTS[index1].item = slot.SLOTS[index2].item
   slot.SLOTS[index2].item = temp
-
-  if
-    slot.SLOTS[index1].type == slot.SLOT_TYPES.weapon or
-    slot.SLOTS[index2].type == slot.SLOT_TYPES.weapon then
-      slot.inventory:parseEquipment()
-  end
 end
 
 function slot.isOnSlot(x, y)

@@ -29,6 +29,16 @@ function eventEmitter:getComposable(cId)
   return self.composables[cId]
 end
 
+function eventEmitter:getComposables(cId)
+  local composables = {}
+  for k,v in pairs(self.composables) do
+    if string.find(k, cId) then
+      composables[k] = v
+    end
+  end
+  return composables
+end
+
 function eventEmitter:removeComposable(cId)
   assert(self.composables[cId], "eventEmitter: Trying to remove non existing composable - " .. cId)
   self.composables[cId] = nil

@@ -18,7 +18,17 @@ end
 function inputManagement.new()
   local events = {
     q = createHandlers("q"),
+
     w = createHandlers("w"),
+    a = createHandlers("a"),
+    s = createHandlers("s"),
+    d = createHandlers("d"),
+
+    ["1"] = createHandlers("1"),
+    ["2"] = createHandlers("2"),
+    ["3"] = createHandlers("3"),
+    ["4"] = createHandlers("4"),
+
     e = createHandlers("e"),
     r = createHandlers("r"),
     i = createHandlers("i"),
