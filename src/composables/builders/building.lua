@@ -14,13 +14,14 @@ local function buildBuilding(config)
     buildingId = "building-".. config.buildingType .. buildingCount
   end
   local building = Composable.new(buildingId)
+  buildingCount = buildingCount + 1
   addCollision(building, {
     x = config.initialCoords[1],
     y = config.initialCoords[2],
     h = 20,
     w = 20,
     shape = "rectangle",
-    type = "dynamic",
+    type = "static",
     fixtureData = {
       dmgBy = "enemy"
     },
@@ -41,7 +42,6 @@ local function buildBuilding(config)
     initial = 10,
     deathCallback = deathCallback,
   })
-  buildingCount = buildingCount + 1
 end
 
 return buildBuilding

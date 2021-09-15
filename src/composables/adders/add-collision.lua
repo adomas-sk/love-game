@@ -1,7 +1,8 @@
 -- colliderData = {
 --   x = number,
 --   y = number,
---   type = "circle" | "rectangle",
+--   type = "dynamic" | "kinematic" | "static"
+--   shape = "circle" | "rectangle",
 --   radius = number,
 --   w = number,
 --   h = number,

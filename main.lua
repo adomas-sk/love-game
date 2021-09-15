@@ -81,13 +81,13 @@ function love.load()
     initialCoords = {30, 30}
   })
   buildRobot({
-    initialCoords = {200, 50}
-  })
-  buildBuilding({
     initialCoords = {400, 400}
   })
   buildBuilding({
-    initialCoords = {300, 0}
+    initialCoords = {10, 10}
+  })
+  buildBuilding({
+    initialCoords = {450, 400}
   })
   buildEnemy({
     initialCoords = {100,100}

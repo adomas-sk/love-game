@@ -39,14 +39,19 @@ local function buildRobot(config)
     if currentTask == robotTasks.findBuilding then
       local buildings = EventEmitter:getComposables("building")
       local closestDistance = 1000000000
+      local closestBuilding = nil
       for k,v in pairs(buildings) do
         local distance = vector(v.body:getPosition()):dist(vector(robot.body:getPosition()))
         if distance <= 50 then
           currentTask = robotTasks.findPlayer
         end
         if distance < closestDistance then
-          return vector(v.body:getPosition())
+          closestDistance = distance
+          closestBuilding = v
         end
+      end
+      if closestBuilding ~= nil then
+        return vector(closestBuilding.body:getPosition())
       end
     elseif currentTask == robotTasks.findPlayer then
       local player = EventEmitter:getComposable("player")

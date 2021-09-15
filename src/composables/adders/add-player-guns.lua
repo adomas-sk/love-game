@@ -35,6 +35,7 @@ local function addPlayerGuns(c)
           maxLifeSpan = 2,
           lifeCycle = {}
         })(inputData)
+      c.playerGuns.cooldowns[c.playerGuns.currentGun] = 0.3
     end
   end
   local updateHandler = function(dt)
