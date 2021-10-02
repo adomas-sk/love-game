@@ -1,4 +1,5 @@
 local camera = require("libs.camera")
+local lightWorld = require("libs.light-world")
 
 local Composable = require("src.composables.composable")
 local InputManagement = require("src.composables.input-management")
@@ -38,28 +39,43 @@ end
 
 function love.load()
   local dispW, dispH = love.window.getDesktopDimensions()
-  love.window.setMode(dispW - 600, dispH-53-200)
-  worldGenerator.init(0)
-  worldGenerator:generateChunk(0, 0)
+  local screenW, screenH = dispW - 600, dispH-53-200
+  love.window.setMode(screenW, screenH)
+  -- worldGenerator.init(0)
+  -- worldGenerator:generateChunk(0, 0)
   -- worldGenerator:generateChunk(-1, 0)
   -- worldGenerator:generateChunk(0, -1)
   Input = InputManagement.new()
   Input:addEventHandler("esc", "escape", function() love.event.quit(0) end)
   World = love.physics.newWorld(0, 0, true)
   EventEmitter = EE.new()
-  Camera = camera.new(0,0)
+  Camera = camera.new(0, 0)
   createCollisionHandler(World, EventEmitter)
+  LightWorld = lightWorld({
+    ambient = {55,55,55},
+    refractionStrength = 32.0,
+    reflectionVisibility = 0.75,
+    shadowBlur = 0.0
+  })
+  LightWorld:refreshScreenSize(screenW, screenH)
   Composable.init({
     world = World,
     input = Input,
     camera = Camera,
     eventEmitter = EventEmitter,
+    lightWorld = LightWorld,
+  })
+
+  local light = Composable.new("light")
+  addSprite(light, {
+    getPosition= function() return 100,100 end,
+    light = true,
   })
 
   Player = Composable.new("player")
   addCollision(Player, {
-    x = 0,
-    y = 0,
+    x = 100,
+    y = 100,
     h = 50,
     w = 30,
     shape = "rectangle",
@@ -68,8 +84,10 @@ function love.load()
     masks = {"playerProjectile"}
   })
   addSprite(Player, {
-    -- spriteName = "walk",
-    -- animation = "walk"
+    -- light = true,
+    spriteName = "char",
+    animation = "walk",
+    newSprite = true,
     drawPosition = 6,
     h = 50,
     w = 30,
@@ -81,16 +99,16 @@ function love.load()
   addPlayerControl(Player)
   addPlayerGuns(Player)
   renderHUD(Player, {})
-  
+
   local debug = Composable.new("debug")
   addSprite(debug, {
     getPosition = function()
-      return 150, 150
+      return 0 , 0
     end,
     drawPosition = 1,
     shape = "rectangle",
-    w = 308,
-    h = 308,
+    w = 1000,
+    h = 1000,
     color = {0.2, 0.2, 0.2},
   })
   local debug = Composable.new("debug2")
@@ -104,7 +122,7 @@ function love.load()
     color = {1, 1, 1,1},
   })
 
-  worldGenerator:renderChunk(0, 0)
+  -- worldGenerator:renderChunk(0, 0)
   -- worldGenerator:renderChunk(-1, 0)
   -- worldGenerator:renderChunk(-1, -1)
   -- worldGenerator:renderChunk(0, -1)
@@ -135,12 +153,18 @@ end
 function love.update(dt)
   World:update(dt)
   EventEmitter:emit("update", dt)
-  Camera:lookAt(Player.body:getPosition())
+  local x,y = Player.body:getPosition()
+  local centerX,centerY = (love.graphics.getWidth() / 2) - x, (love.graphics.getHeight() / 2) - y
+  Camera:lookAt(x,y)
+  LightWorld:update(dt)
+  LightWorld:setTranslation(centerX,centerY, 1)
 end
 
 function love.draw()
   Camera:attach()
-  EventEmitter:emitDraw()
+  LightWorld:draw(function()
+    EventEmitter:emitDraw()
+  end)
   Camera:detach()
   EventEmitter:emitDraw(true)
 end

@@ -6,6 +6,7 @@ function composable.init(config)
   composable.camera = config.camera
   composable.world = config.world
   composable.eventEmitter = config.eventEmitter
+  composable.lightWorld = config.lightWorld
 end
 -- config: {
 --   excludeFromEventEmitter = bool,
