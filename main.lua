@@ -52,10 +52,10 @@ function love.load()
   Camera = camera.new(0, 0)
   createCollisionHandler(World, EventEmitter)
   LightWorld = lightWorld({
-    ambient = {55,55,55},
+    ambient = {150,150,150},
     refractionStrength = 32.0,
     reflectionVisibility = 0.75,
-    shadowBlur = 0.0
+    shadowBlur = 1.0
   })
   LightWorld:refreshScreenSize(screenW, screenH)
   Composable.init({
@@ -113,13 +113,15 @@ function love.load()
   })
   local debug = Composable.new("debug2")
   addSprite(debug, {
+    shadowBody = true,
     getPosition = function()
-      return 0, 0
+      return 200, 200
     end,
-    drawPosition = 6,
-    shape = "circle",
-    radius = 2,
-    color = {1, 1, 1,1},
+    drawPosition = 1,
+    shape = "rectangle",
+    w = 50,
+    h = 50,
+    color = {0.4, 0.4, 0.4},
   })
 
   -- worldGenerator:renderChunk(0, 0)

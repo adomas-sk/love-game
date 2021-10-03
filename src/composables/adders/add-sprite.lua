@@ -16,63 +16,46 @@ local function addSprite(c, spriteData)
   end
   assert(spriteData.getPosition ~= nil, "addSprite: no getPosition")
 
+  -- TODO: move this to another adder
   if spriteData.light then
-    local x,y = spriteData.getPosition();
-    local ligth = c.lightWorld:newLight(x, y, 255, 127, 63, 1000)
-    ligth:setGlowStrength(1)
+    local sun = c.lightWorld:newLight(0,0, 255, 127, 63, 10000)
+    sun:setGlowStrength(0.3)
+    local updateHandler = function (dt)
+      local x, y = Player.body:getPosition()
+      sun:setPosition(x + 5000, y + 3000, 200)
+    end
+
+    c:addEventHandler("update", updateHandler)
     return nil
   end
 
-  if spriteData.spriteName and spriteData.animation then
+  if spriteData.spriteName then
     local animationData = assets.images[spriteData.spriteName][spriteData.animation]
     local image = love.graphics.newImage(animationData.src)
     local normal = love.graphics.newImage(animationData.normal)
-    local data = require(animationData.data)
 
-    local lightWorldImage = c.lightWorld:newImage(image, 200, 200)
-    lightWorldImage:setNormalMap(normal, 200, 200, 0, 0)
-    local animations = {
-      s = {},
-      sw = {},
-      w = {},
-      nw = {},
-      n = {},
-      ne = {},
-      e = {},
-      se = {},
-    }
+    -- TODO: figure out how to draw shadow
+    local animation = c.lightWorld:newAnimationGrid(image, 0, 0)
+    animation:setNormalMap(normal)
+    local grid = animation:newGrid(200, 200)
 
-    for index,v in ipairs(animationData.directions.s) do
-      local frame = data.frames[v].frame
-      local quad = love.graphics.newQuad(frame.x, frame.y, frame.w, frame.h, image:getDimensions())
-      animations.s[index] = quad
-    end
+    animation:addAnimation("walk-s", grid("1-15", 1), 0.1)
+    animation:addAnimation("walk-sw", grid("1-15", 2), 0.1)
+    animation:addAnimation("walk-w", grid("1-15", 3), 0.1)
+    animation:addAnimation("walk-nw", grid("1-15", 4), 0.1)
+    animation:addAnimation("walk-n", grid("1-15", 5), 0.1)
+    animation:addAnimation("walk-ne", grid("1-15", 6), 0.1)
+    animation:addAnimation("walk-e", grid("1-15", 7), 0.1)
+    animation:addAnimation("walk-se", grid("1-15", 8), 0.1)
 
-    local currentFrame = 3
     local drawHandler = function ()
-      local x, y = spriteData.getPosition()
       love.graphics.setColor(1,1,1,1)
+      local x, y = spriteData.getPosition()
+      animation:setPosition(x, y)
+      animation:drawAnimation()
+    end
 
-      local normalFrame = data.frames[animationData.directions.s[currentFrame]].frame
-      local normalX, normalY = normalFrame.x, normalFrame.y
-      lightWorldImage:setNormalMapOffset(normalX, normalY)
-      lightWorldImage:setPosition(x - 100, y - 100)
-      love.graphics.draw(image, animations.s[currentFrame], x - 100, y - 100)
-    end
-    local second = 0
-    local updateHandler = function(dt)
-      second = second + dt
-      print(second, dt)
-      if second >= 0.1 then
-        second = 0
-        currentFrame = currentFrame + 1
-        if currentFrame > 15 then
-          currentFrame = 1
-        end
-      end
-    end
     c.eventEmitter:addDrawHandler(c.id, drawHandler, spriteData.drawPosition)
-    c:addEventHandler("update", updateHandler)
     return nil
   end
 
@@ -83,7 +66,7 @@ local function addSprite(c, spriteData)
   if spriteData.shape ~= nil then
     shape = spriteData.shape
   end
-  if shape == "rectangle" then
+  if shape == "rectangle" and spriteData.shadowBody then
     local x, y = spriteData.getPosition()
     lightShape = c.lightWorld:newRectangle(x, y, spriteData.w, spriteData.h)
     local drawHandler = function ()
