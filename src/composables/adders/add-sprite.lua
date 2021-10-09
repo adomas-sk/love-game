@@ -19,7 +19,7 @@ local function addSprite(c, spriteData)
   end
   assert(spriteData.getPosition ~= nil, "addSprite: no getPosition")
 
-  if spriteData.spriteName then
+  if spriteData.spriteName and spriteData.animation then
     local animationData = assets.images[spriteData.spriteName][spriteData.animation]
     local image = love.graphics.newImage(animationData.src)
 
@@ -60,19 +60,9 @@ local function addSprite(c, spriteData)
 
   -- THIS IS FOR DEBUGGING AND PRIMITIVES
 
-  local lightShape = nil
   local shape = c.shape
   if spriteData.shape ~= nil then
     shape = spriteData.shape
-  end
-  if shape == "rectangle" and spriteData.shadowBody then
-    local x, y = spriteData.getPosition()
-    lightShape = c.lightWorld:newRectangle(x, y, spriteData.w, spriteData.h)
-    local drawHandler = function ()
-      love.graphics.polygon("fill", lightShape:getPoints())
-    end
-    c.eventEmitter:addDrawHandler(c.id, drawHandler, spriteData.drawPosition)
-    return nil
   end
 
   local drawHandler = function ()
