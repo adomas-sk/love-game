@@ -1,106 +1,93 @@
 local forma = require("libs.forma")
 
-local Composable = require("src.composables.composable")
-local addSprite = require("src.composables.adders.add-sprite")
-
 local worldGenerator = {
-  chunks = {},
-  CHUNKX = 30,
-  CHUNKY = 30,
-  BLOCKX = 10,
-  BLOCKY = 10,
-  baseChunk = nil
+  seed = 0,
+  worldWidth = 10,
+  worldHeight = 10,
+  result = {},
 }
+local BLOCK_SIZE = 25
 
 function worldGenerator.init(initialSeed)
-  if initialSeed == nil or initialSeed == "" then initialSeed = math.random(999999) end
+  if initialSeed == nil or initialSeed == "" then
+    initialSeed = math.random(999999)
+  end
   worldGenerator.seed = initialSeed
   love.math.setRandomSeed(initialSeed)
-
-  worldGenerator.baseChunk = forma.primitives.square(worldGenerator.CHUNKX, worldGenerator.CHUNKY)
 end
 
-function worldGenerator:generateChunk(chunkX, chunkY)
-  local chunkName = chunkX .. "-" .. chunkY
-  print(chunkX * 1, chunkY * 1)
-  local domain = forma.pattern.shift(
-    self.baseChunk,
-    chunkX * 1,
-    chunkY * 1
-  )
-  local frequency, depth = 0.2, 1
+function worldGenerator.generateWorld()
+  local worldSquare = forma.primitives.square(worldGenerator.worldWidth, worldGenerator.worldHeight)
+  local frequency, depth = 0.025, 1
   local thresholds = { 0, 0.455, 0.7 }
-  local noise = forma.subpattern.perlin(domain, frequency, depth, thresholds, love.math.random)
 
-  local result = {}
-  for y=0,self.CHUNKY - 1 do
-    result[y] = {}
-  end
+  local noise = forma.subpattern.perlin(worldSquare, frequency, depth, thresholds, love.math.random)
 
-  local chars = {".", "|", "M"}
-  -- forma.subpattern.print_patterns(domain, noise, chars)
-  -- print("")
+  -- forma.subpattern.print_patterns(worldSquare, noise, {".", "+", "o"})
+
+  local colors = {
+    {0.2, 0.3, 0.8, 1},
+    {0.2, 0.8, 0.3, 1},
+    {0.9, 0.9, 0.9, 1},
+  }
   for k,pattern in pairs(noise) do
-    for x,y in pattern:cell_coordinates() do
-      result[y][x] = chars[k]
+    for icell in pattern:cells() do
+      worldGenerator.result[icell.x .. "-" .. icell.y] = {icell.x, icell.y, colors[k]}
     end
   end
 
-  self.chunks[chunkName] = result
---  debugging
-  local initial = forma.primitives.square(self.CHUNKX, self.CHUNKY)
-  local domain = initial
-  local frequency, depth = 0.2, 1
-  local thresholds = { 0, 0.455, 0.7 }
-  local noise = forma.subpattern.perlin(domain, frequency, depth, thresholds, love.math.random)
-  forma.subpattern.print_patterns(domain, noise, chars)
-  print("")
-  local domain1 = forma.pattern.shift(
-    initial,
-    0, 0
-  )
-  local frequency1, depth1 = 0.2, 1
-  local thresholds1 = { 0, 0.455, 0.7 }
-  local noise1 = forma.subpattern.perlin(domain1, frequency1, depth1, thresholds1, love.math.random)
-  forma.subpattern.print_patterns(domain1, noise1, chars)
+  worldGenerator.blocksSetup()
 end
 
-function worldGenerator:callbackAllChunkCells(chunkX, chunkY, callback)
-  local chunkName = chunkX .. "-" .. chunkY
+local cols = 0
+local rows = 0
+local padding = 5
+local leftBlock = 0
+local topBlock = 0
 
-  for y=0,#self.chunks[chunkName] do
-    for x=0,#self.chunks[chunkName][y] do
-      callback(x, y, self.chunks[chunkName][y][x])
+local cellsToDraw = {}
+
+function worldGenerator.blocksSetup()
+  local screenW, screenH = love.graphics.getDimensions()
+
+  cols = math.ceil(screenW / BLOCK_SIZE)
+  rows = math.ceil(screenH / BLOCK_SIZE)
+end
+
+function worldGenerator.blocksUpdate()
+  local centerX, centerY = Player.body:getPosition()
+
+  local centerBlockX = math.ceil(centerX / BLOCK_SIZE)
+  local centerBlockY = math.ceil(centerY / BLOCK_SIZE)
+
+  local leftBlock = math.ceil(centerBlockX - cols / 2)
+  local topBlock = math.ceil(centerBlockY - rows / 2)
+  cellsToDraw = {}
+  for x=-padding,cols + padding * 2 do
+    for y=-padding,rows + padding * 2 do
+      local cell = worldGenerator.result[leftBlock + x .. "-" .. topBlock + y]
+      if cell then
+        table.insert(cellsToDraw, cell)
+      end
     end
   end
 end
 
-function worldGenerator:renderChunk(chunkX, chunkY)
-  local renderChunk = function(x, y, value)
-    local block = Composable.new("block-" .. x .. ":" .. y .. "-" ..chunkX .. "-" .. chunkY)
-    local color = {0.1, 0.1, 0.5, 1}
-    if value == "|" then
-      color = {0.5, 0.5, 0.1, 1}
-    elseif value == "M" then
-      color = {0.1, 0.5, 0.1, 1}
-    end
-    if x == 0 and y == 30 then
-      color = {1,0,0, 1}
-    end
-    addSprite(block, {
-      getPosition = function()
-        return
-          chunkX * self.BLOCKX * self.CHUNKX + x * self.BLOCKX + self.BLOCKX / 2,
-          chunkY * self.BLOCKY * self.CHUNKY + y * self.BLOCKY + self.BLOCKY / 2
-      end,
-      drawPosition = 2,
-      shape = "rectangle",
-      w = self.BLOCKX,
-      h = self.BLOCKY,
-      color = color,
-    })
+function worldGenerator.blocksDraw()
+  -- TODO: do this in a canvas
+  for _,v in pairs(cellsToDraw) do
+    local x, y, color = unpack(v)
+      love.graphics.setColor(unpack(color))
+      love.graphics.rectangle(
+        "fill",
+        x * BLOCK_SIZE,
+        y * BLOCK_SIZE,
+        BLOCK_SIZE,
+        BLOCK_SIZE
+      )
   end
-  worldGenerator:callbackAllChunkCells(chunkX, chunkY, renderChunk)
+
+  return #cellsToDraw
 end
 
 return worldGenerator

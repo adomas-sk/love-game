@@ -1,4 +1,4 @@
-local vector = require("libs/vector")
+local vector = require("libs.vector")
 
 local function addPlayerControl(c)
   assert(c.body ~= nil, "Tried to add playerControl to composable that does not have body")
@@ -7,10 +7,14 @@ local function addPlayerControl(c)
     x = 0,
     y = 0
   }
-
+  local prevDirection = vector(0, 0)
   local updateHandler = function()
     local direction = vector(c.playerControl.x, c.playerControl.y)
-    c.body:setLinearVelocity(direction:setmag(100):unpack())
+    if direction.x ~= prevDirection.x or direction.y ~= prevDirection.y then
+      prevDirection = direction:clone()
+      c.eventEmitter:emitTo(c.id, "move", direction)
+      c.body:setLinearVelocity(direction:setmag(100):unpack())
+    end
   end
   local downHandler = function()
     c.playerControl.y = c.playerControl.y + 1

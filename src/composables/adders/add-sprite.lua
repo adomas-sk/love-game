@@ -1,3 +1,6 @@
+local vector = require("libs.vector")
+local anim8 = require("libs.anim8")
+
 local assets = require("src.assets.assets")
 
 -- spriteData: {
@@ -16,46 +19,42 @@ local function addSprite(c, spriteData)
   end
   assert(spriteData.getPosition ~= nil, "addSprite: no getPosition")
 
-  -- TODO: move this to another adder
-  if spriteData.light then
-    local sun = c.lightWorld:newLight(0,0, 255, 127, 63, 10000)
-    sun:setGlowStrength(0.3)
-    local updateHandler = function (dt)
-      local x, y = Player.body:getPosition()
-      sun:setPosition(x + 5000, y + 3000, 200)
-    end
-
-    c:addEventHandler("update", updateHandler)
-    return nil
-  end
-
   if spriteData.spriteName then
     local animationData = assets.images[spriteData.spriteName][spriteData.animation]
     local image = love.graphics.newImage(animationData.src)
-    local normal = love.graphics.newImage(animationData.normal)
 
-    -- TODO: figure out how to draw shadow
-    local animation = c.lightWorld:newAnimationGrid(image, 0, 0)
-    animation:setNormalMap(normal)
-    local grid = animation:newGrid(200, 200)
+    local grid = anim8.newGrid(200, 200, image:getWidth(), image:getHeight())
 
-    animation:addAnimation("walk-s", grid("1-15", 1), 0.1)
-    animation:addAnimation("walk-sw", grid("1-15", 2), 0.1)
-    animation:addAnimation("walk-w", grid("1-15", 3), 0.1)
-    animation:addAnimation("walk-nw", grid("1-15", 4), 0.1)
-    animation:addAnimation("walk-n", grid("1-15", 5), 0.1)
-    animation:addAnimation("walk-ne", grid("1-15", 6), 0.1)
-    animation:addAnimation("walk-e", grid("1-15", 7), 0.1)
-    animation:addAnimation("walk-se", grid("1-15", 8), 0.1)
+    local animations = {}
+    local updateAnimation = {}
+    local currentAnimation = "walk-sd"
+    for k,v in pairs(animationData.directions) do
+      animations[k] = anim8.newAnimation(grid(v.range[1], v.range[2]), v.speed)
+      updateAnimation[v.rot] = k
+    end
 
     local drawHandler = function ()
       love.graphics.setColor(1,1,1,1)
       local x, y = spriteData.getPosition()
-      animation:setPosition(x, y)
-      animation:drawAnimation()
+      animations[currentAnimation]:draw(image, x - 100, y - 100)
+    end
+
+    local updateHandler = function (dt)
+      animations[currentAnimation]:update(dt)
+    end
+
+    local moveHandler = function(direction)
+      if not (direction.x == 0 and direction.y == 0) then
+        local rotation = math.atan2(direction.y, direction.x) / math.pi
+        if updateAnimation[rotation] then
+          currentAnimation = updateAnimation[rotation]
+        end
+      end
     end
 
     c.eventEmitter:addDrawHandler(c.id, drawHandler, spriteData.drawPosition)
+    c:addEventHandler("update", updateHandler)
+    c:addEventHandler("move", moveHandler)
     return nil
   end
 

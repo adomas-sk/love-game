@@ -6,7 +6,6 @@ function composable.init(config)
   composable.camera = config.camera
   composable.world = config.world
   composable.eventEmitter = config.eventEmitter
-  composable.lightWorld = config.lightWorld
 end
 -- config: {
 --   excludeFromEventEmitter = bool,
@@ -23,7 +22,8 @@ function composable.new(id, config)
     update = {},
     collide = {},
     destroy = {},
-    takeDamage = {}
+    takeDamage = {},
+    move = {},
   }
   table.insert(comp.events.destroy, 1, function ()
     comp.input:removeEventHandler(id)
