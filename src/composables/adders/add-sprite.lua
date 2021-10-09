@@ -1,3 +1,6 @@
+local vector = require("libs.vector")
+local anim8 = require("libs.anim8")
+
 local assets = require("src.assets.assets")
 
 -- spriteData: {
@@ -16,40 +19,59 @@ local function addSprite(c, spriteData)
   end
   assert(spriteData.getPosition ~= nil, "addSprite: no getPosition")
 
-  if spriteData.spriteName and spriteData.animation then
-    local image = love.graphics.newImage(assets.images[spriteData.spriteName].src)
-    local animation = {}
-    local currentAnimation = 1
-    local lastAnimation = 0
-    for _,v in pairs(assets.images[spriteData.spriteName].animations[spriteData.animation]) do
-      table.insert(animation, love.graphics.newQuad(v[1], v[2], v[3], v[4], image:getDimensions()))
-      lastAnimation = lastAnimation + 1
+  if spriteData.spriteName then
+    local animationData = assets.images[spriteData.spriteName][spriteData.animation]
+    local image = love.graphics.newImage(animationData.src)
+
+    local grid = anim8.newGrid(200, 200, image:getWidth(), image:getHeight())
+
+    local animations = {}
+    local updateAnimation = {}
+    local currentAnimation = "walk-sd"
+    for k,v in pairs(animationData.directions) do
+      animations[k] = anim8.newAnimation(grid(v.range[1], v.range[2]), v.speed)
+      updateAnimation[v.rot] = k
     end
 
     local drawHandler = function ()
-      local x, y = spriteData.getPosition()
-      if x == nil and y == nil then
-        return nil
-      end
       love.graphics.setColor(1,1,1,1)
-      love.graphics.draw(image, animation[currentAnimation], x - 240, y - 240)
+      local x, y = spriteData.getPosition()
+      animations[currentAnimation]:draw(image, x - 100, y - 100)
     end
 
-    local changeAnimationAfterEvery = 0.016 * 8
-    local lastAnimationChange = 0
-    local updateHandler = function (delta)
-      lastAnimationChange = lastAnimationChange + delta
-      if changeAnimationAfterEvery <= lastAnimationChange then
-        lastAnimationChange = 0
-        currentAnimation = currentAnimation + 1
-        if currentAnimation > lastAnimation then
-          currentAnimation = 1
+    local updateHandler = function (dt)
+      animations[currentAnimation]:update(dt)
+    end
+
+    local moveHandler = function(direction)
+      if not (direction.x == 0 and direction.y == 0) then
+        local rotation = math.atan2(direction.y, direction.x) / math.pi
+        if updateAnimation[rotation] then
+          currentAnimation = updateAnimation[rotation]
         end
       end
     end
-  
+
     c.eventEmitter:addDrawHandler(c.id, drawHandler, spriteData.drawPosition)
     c:addEventHandler("update", updateHandler)
+    c:addEventHandler("move", moveHandler)
+    return nil
+  end
+
+  -- THIS IS FOR DEBUGGING AND PRIMITIVES
+
+  local lightShape = nil
+  local shape = c.shape
+  if spriteData.shape ~= nil then
+    shape = spriteData.shape
+  end
+  if shape == "rectangle" and spriteData.shadowBody then
+    local x, y = spriteData.getPosition()
+    lightShape = c.lightWorld:newRectangle(x, y, spriteData.w, spriteData.h)
+    local drawHandler = function ()
+      love.graphics.polygon("fill", lightShape:getPoints())
+    end
+    c.eventEmitter:addDrawHandler(c.id, drawHandler, spriteData.drawPosition)
     return nil
   end
 
@@ -57,10 +79,6 @@ local function addSprite(c, spriteData)
     local x, y = spriteData.getPosition()
     if x == nil and y == nil then
       return nil
-    end
-    local shape = c.shape
-    if spriteData["shape"] ~= nil then
-      shape = spriteData.shape
     end
     love.graphics.setColor(spriteData.color[1],spriteData.color[2],spriteData.color[3],spriteData.color[4])
     if shape == "circle" then

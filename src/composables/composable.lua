@@ -22,7 +22,8 @@ function composable.new(id, config)
     update = {},
     collide = {},
     destroy = {},
-    takeDamage = {}
+    takeDamage = {},
+    move = {},
   }
   table.insert(comp.events.destroy, 1, function ()
     comp.input:removeEventHandler(id)

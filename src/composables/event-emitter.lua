@@ -67,10 +67,7 @@ function eventEmitter:emit(key, payload)
 end
 
 function eventEmitter:addDrawHandler(id, handler, pos, hud)
-  local position = 5
-  if pos then
-    position = pos
-  end
+  local position = pos or 5
   if hud then
     table.insert(self.hudDrawEvents[position], 1, { id = id, handler = handler })
   else
