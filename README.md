@@ -1,7 +1,7 @@
 # Lovely game made with [LÖVE](https://love2d.org/wiki/Main_Page)
 made with ❤️
 
-> Stoped developed because Heaps.io is my new love ;(
+> Stoped development because Heaps.io is my new love ;(
 
 ### Running the game
 [You need to have löve installed](https://love2d.org/wiki/Getting_Started)
